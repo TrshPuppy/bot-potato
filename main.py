@@ -13,10 +13,14 @@ class Bot(commands.Bot):
         prefix = api['Bot']['PREFIX']
         # target_twitch_channel = [api['Bot']['CHANNEL']]
 
-        super().__init__(token=api['OA_TOKEN'], 
+        super().__init__(# 'irc_token' evidentally has to be 'token' instead
+                         token=api['OA_TOKEN'], 
                          client_id=api['CLIENT_ID'], 
                          nick=bot_username, 
                          prefix=prefix,
+                         # this has to be an array but setting `target_twitch_channel`
+                         # on line 14 to = [api['Bot]['CHANNEL]] didn't work.
+                         # Channel name hard coded for now :)
                          initial_channels=['trshpuppy'])
 
     async def event_ready(self):
@@ -32,3 +36,4 @@ class Bot(commands.Bot):
 
 bot = Bot()
 bot.run()
+
