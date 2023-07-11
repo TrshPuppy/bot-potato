@@ -33,6 +33,10 @@ class Bot(commands.Bot):
     @commands.command(name='hello')
     async def my_command(self, ctx):
         await ctx.send('Hello World!')
+    
+    @commands.command(name="bake")
+    async def my_command(self, ctx):
+        await ctx.send('Bakt  this')
 
 bot = Bot()
 bot.run()
