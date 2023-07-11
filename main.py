@@ -2,8 +2,6 @@
 from twitchio.ext import commands
 import json
 
-
-
 # Load api/ oauth data from data/api.json:
 with open('data/api.json') as f:
     api = json.load(f)
@@ -33,8 +31,6 @@ async def event_message(ctx):
     if ctx.echo:
         print(f"event_message: ")
     await ctx.channel.send(f"hello {ctx.author.name}")
-
-
 
 bot.run()
 
