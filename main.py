@@ -35,9 +35,10 @@ async def hello(ctx):
 @bot.command(name="join")
 async def join(ctx):
     p_username = ctx.author.name
-    new_player = Player(p_username, 0, 1, 2)
+    p_id = ctx.author.id
+    new_player = Player(p_username, p_id, 0, 1, 2)
     print(f"New Player joined, player time received = {new_player.time_received}")
-    await ctx.send(f"new player joined!, welcome {new_player.username}")
+    await ctx.send(f"new player joined!, welcome {new_player.id}")
 
 # Bot event listeners: 
 @bot.event()
