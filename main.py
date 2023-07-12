@@ -4,47 +4,43 @@ import json
 
 # Local modules:
 from player import *
-from game import Game
+from game import *
 
 # Some dead kittens, I MEAN... globals...
-current_game = None
-a_game_is_active = False
+# current_game = None
+# a_game_is_active = False
 
-def start_new_game():
-    # This should only define and activate the 'current_game' variable
-    global current_game, a_game_is_active
-    if a_game_is_active:
-        return
+# def start_new_game():
+#     # This should only define and activate the 'current_game' variable
+#     global current_game, a_game_is_active
+#     if a_game_is_active:
+#         return
         
-    game_start_time = int(time.time()) # format is Unix, ex: 1627173662
-    current_game = Game()
-    current_game.start_game(game_start_time)
-    current_game.active = True
-    a_game_is_active = current_game.active
+#     game_start_time = int(time.time()) # format is Unix, ex: 1627173662
+#     current_game = Game()
+#     current_game.start_game(game_start_time)
+#     current_game.active = True
+#     a_game_is_active = current_game.active
 
-    return
+#     return
 
-def try_to_add_player(p):
-    # If there is no current game, start one:
-    global current_game
-    if current_game == None:
-        start_new_game()
-        # new_game = start_and_get_new_game()
-        # player_is_already_playing = new_game.check_for_player(p)
-        # new_game.player_join_game(p)
-        # return True
+# def try_to_add_player(p):
+#     # If there is no current game, start one:
+#     global current_game
+#     if current_game == None:
+#         start_new_game()
     
-    if current_game.active == False:
-        # We should be able to have a game and activate or deactivate it.
-        print("Sorry, the game is over")
-        return False
+#     if current_game.active == False:
+#         # We should be able to have a game and activate or deactivate it.
+#         print("Sorry, the game is over")
+#         return False
     
-    if current_game.check_for_player(p):
-        print("This player is already playing")
-        return False
+#     if current_game.check_for_player(p):
+#         print("This player is already playing")
+#         return False
     
-    current_game.player_join_game(p)
-    return True
+#     current_game.player_join_game(p)
+#     return True
 
 # Load api/ oauth data from data/api.json:
 with open('data/api.json') as f:
@@ -71,6 +67,12 @@ bot = commands.Bot(
 async def hello(ctx):
     await ctx.send("Hello World!")
 
+# @bot.command(name="start")
+# async def start(ctx):
+#     check_chatter_authority(ctx)
+#     print("Starting potato game")
+#     start_new_game()
+
 @bot.command(name="join")
 async def join(ctx):
     joined_player = create_and_get_player(ctx)
@@ -79,6 +81,7 @@ async def join(ctx):
     if player_added:
         print(f"New Player joined, player time received = {joined_player.time_received}")
         await ctx.send(f"new player joined!, welcome {joined_player.id}")
+
 
 # Bot event listeners: 
 @bot.event()
