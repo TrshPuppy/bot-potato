@@ -33,7 +33,7 @@ bot = commands.Bot(
 async def hello(ctx):
     await ctx.send("Hello World!")
 
-@bot.command(name="start")
+@bot.command(name="start") # This is the only pplace we  should start a game:
 async def start(ctx):
     if chatter_has_authority(ctx, channel_mods):
         print("Starting potato game")

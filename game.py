@@ -22,12 +22,12 @@ class Game():
         # self.end_time = et
 
     def check_for_player(self, p):
-        if p in self.active_players:
+        if p.id in self.active_players:
             return True
         return False
 
     def player_join_game(self, player):
-        self.active_players.append(player)
+        self.active_players.append(player.id)
 
     def get_game_state(self):
         return "game stats"
@@ -50,18 +50,18 @@ def start_new_game():
 def try_to_add_player(p):
     # If there is no current game, start one:
     global current_game
-    if current_game == None:
-        start_new_game()
     
-    if current_game.active == False:
-        # We should be able to have a game and activate or deactivate it.
-        print("Sorry, the game is over")
-        return False
+    if a_game_is_active == True:
+        if current_game.check_for_player(p):
+            print("This player is already playing")
+            return False
     
-    if current_game.check_for_player(p):
-        print("This player is already playing")
-        return False
+        current_game.player_join_game(p)
+        return True
+
+    # We should be able to have a game and activate or deactivate it.
+    print("Sorry, the game is over")
+    return False
     
-    current_game.player_join_game(p)
-    return True
+    
 
