@@ -1,8 +1,50 @@
-# This is for our main bot code
 from twitchio.ext import commands
+import time
 import json
-from player import Player
 
+# Local modules:
+from player import *
+from game import Game
+
+# Some dead kittens, I MEAN... globals...
+current_game = None
+a_game_is_active = False
+
+def start_new_game():
+    # This should only define and activate the 'current_game' variable
+    global current_game, a_game_is_active
+    if a_game_is_active:
+        return
+        
+    game_start_time = int(time.time()) # format is Unix, ex: 1627173662
+    current_game = Game()
+    current_game.start_game(game_start_time)
+    current_game.active = True
+    a_game_is_active = current_game.active
+
+    return
+
+def try_to_add_player(p):
+    # If there is no current game, start one:
+    global current_game
+    if current_game == None:
+        start_new_game()
+        # new_game = start_and_get_new_game()
+        # player_is_already_playing = new_game.check_for_player(p)
+        # new_game.player_join_game(p)
+        # return True
+    
+    if current_game.active == False:
+        # We should be able to have a game and activate or deactivate it.
+        print("Sorry, the game is over")
+        return False
+    
+    if current_game.check_for_player(p):
+        print("This player is already playing")
+        return False
+    
+    current_game.player_join_game(p)
+    return True
 
 # Load api/ oauth data from data/api.json:
 with open('data/api.json') as f:
@@ -14,9 +56,6 @@ prefix = api['Bot']['PREFIX']
 # Load game stats from data/stats.json:
 with open('data/stats.json') as g:
     stats = json.load(g)
-
-test_stat = stats["test-stat"]
-print(f"Test stat: {test_stat}")
 
 # Create bot using 'commands' from twitchio and api data:
 bot = commands.Bot(
@@ -34,11 +73,12 @@ async def hello(ctx):
 
 @bot.command(name="join")
 async def join(ctx):
-    p_username = ctx.author.name
-    p_id = ctx.author.id
-    new_player = Player(p_username, p_id, 0, 1, 2)
-    print(f"New Player joined, player time received = {new_player.time_received}")
-    await ctx.send(f"new player joined!, welcome {new_player.id}")
+    joined_player = create_and_get_player(ctx)
+    
+    player_added = try_to_add_player(joined_player)
+    if player_added:
+        print(f"New Player joined, player time received = {joined_player.time_received}")
+        await ctx.send(f"new player joined!, welcome {joined_player.id}")
 
 # Bot event listeners: 
 @bot.event()
@@ -48,7 +88,7 @@ async def event_ready():
 @bot.event()
 async def event_message(ctx):
     if ctx.echo:
-        print(f"event_message: ")
+        print("echo")
     await ctx.channel.send(f"hello {ctx.author.name}")
 
 # Connect and run bot, it's listening to chat, this method is 'stopping':
