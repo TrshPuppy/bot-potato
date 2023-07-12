@@ -9,19 +9,28 @@ with open('data/api.json') as f:
 bot_username = api['Bot']['BOT_USERNAME']
 prefix = api['Bot']['PREFIX']
 
+# Load game stats from data/stats.json:
+with open('data/stats.json') as g:
+    stats = json.load(g)
+
+test_stat = stats["test-stat"]
+print(f"Test stat: {test_stat}")
+
+# Create bot using 'commands' from twitchio and api data:
 bot = commands.Bot(
-    # 'irc_token' evidentally has to be 'token' instead
     token=api['OA_TOKEN'], 
     client_id=api['CLIENT_ID'], 
     nick=bot_username, 
     prefix=prefix,
-    # this has to be an array but setting `target_twitch_channel`
-    # on line 14 to = [api['Bot]['CHANNEL]] didn't work.
-    # Channel name hard coded for now :)
     initial_channels=['trshpuppy']
     )
 
-#bot = Bot()
+# Bot commands:
+@bot.command(name="hello")
+async def hello(ctx):
+    await ctx.send("Hello World!")
+
+# Bot event listeners: 
 @bot.event()
 async def event_ready():
     print(f"Ready @{bot_username}")
@@ -32,6 +41,7 @@ async def event_message(ctx):
         print(f"event_message: ")
     await ctx.channel.send(f"hello {ctx.author.name}")
 
+# Connect and run bot, it's listening to chat, this method is 'stopping':
 bot.run()
 
 # class Bot(commands.Bot):
