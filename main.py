@@ -33,6 +33,8 @@ bot = commands.Bot(
 async def hello(ctx):
     await ctx.send("Hello World!")
 
+# MOD commands
+
 @bot.command(name="start") # This is the only pplace we  should start a game:
 async def start(ctx):
     if chatter_has_authority(ctx, channel_mods):
@@ -40,6 +42,15 @@ async def start(ctx):
         start_new_game()
     else:
        await ctx.channel.send(f"Sorry {ctx.author.name}, you can't start a potato game :(")
+
+# nice to have: add an announce command to get players to join
+
+# nice to have: add a prepare command to wrap the announce command in a timed loop so that announce
+# can be made and then start game can be made with a single command
+
+# nice to have: end game command for mods
+
+# Player commands
 
 @bot.command(name="join")
 async def join(ctx):
@@ -50,6 +61,7 @@ async def join(ctx):
         print(f"New Player joined, player time received = {joined_player.time_received}")
         await ctx.send(f"new player joined!, welcome {joined_player.id}")
 
+# need: pass command
 
 # Bot event listeners: 
 @bot.event()

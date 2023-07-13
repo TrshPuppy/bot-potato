@@ -1,11 +1,14 @@
 import time
 
 # Some dead kittens, I MEAN... globals...
-# for shame, ruler
+# move active into current_game, should be a global singleton
 current_game = None
 a_game_is_active = False
 
+# need some default parameters for game
+
 class Game():
+    #use default values for ctor parameters
     def __init__(self):
         self.start_time = 0
         self.active = False
@@ -14,6 +17,7 @@ class Game():
         self.active_players = []
         #self.potato = None
 
+    # make these parameterless, get time from within fn
     def start_game(self, st):
         self.start_time = st
         self.active = True
@@ -32,6 +36,8 @@ class Game():
 
     def get_game_state(self):
         return "game stats"
+
+    #Game needs to _run a loop for game timer so import threading
 
 
 def start_new_game():
