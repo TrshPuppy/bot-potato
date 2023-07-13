@@ -1,22 +1,21 @@
-{
-    "OA_TOKEN": "thisisamocktoken",
-    "CLIENT_ID": "thisisamockclientid",
-    "CLIENT_SECRET": "thisisamockclientsecret",
-    "REDIRECT_URI": "http://localhost:3000",
-    "REFRESH_TOKEN": "thisisamockrefreshtoken",
+{"OA_TOKEN":"",
+"CLIENT_ID":"",
+"CLIENT_SECRET":"",
+"REDIRECT_URI":"http://localhost:3000",
+"CODE_FROM_LAST_REQUEST":"",
     "OA_EXPIRE": 0,
     "LAST_REFRESH":0,
     "Bot": {
       "PREFIX": "!",
-      "CHANNEL": "TargetTwitchChannel",
-      "STREAMER_NICK": "This is the name the streamer wants the bot to refer to them as",
-      "BOT_USERNAME": "bot_name",
+      "CHANNEL": "trshpuppy",
+      "STREAMER_NICK": "",
+      "BOT_USERNAME": "trsh_bot",
       "KEYWORD_PLURAL": "keywords",
       "KEYWORD_SINGULAR": "keyword",
       "MODLIST": [
-        "moderator-username1",
-        "moderator_username2",
-        "moderator_username3"
+        "trshpuppy",
+        "turing_moon_yatch",
+        "rulerlefi"
       ]
     }
   }
