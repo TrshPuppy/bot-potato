@@ -6,8 +6,7 @@ current_game = None
 DEFAULT_MIN_PASSES = 2
 DEFAULT_GAME_TIMEOUT = 30
 
-# need some default parameters for game
-
+# need some default parameters for game:
 class Game():
     #use default values for ctor parameters
     def __init__(self, min_passes_between = None, game_timeout = None):
@@ -29,7 +28,6 @@ class Game():
         else:
             self.game_timeout = game_timeout
         # note that player_timeout is not here because we now add players before starting the game
-        #self.potato = None
         self.dropped = False
 
     def start_game(self):
@@ -69,9 +67,9 @@ class Game():
     def stop(self):
         self.done = True
 
-
-
 def is_game_active():
+    if current_game == None:
+        return False
     return current_game.active
 
 def start_new_game():
@@ -82,18 +80,16 @@ def start_new_game():
         
     current_game = Game()
     current_game.start_game()
-
     return
 
-def try_to_add_player(p):
-    # If there is no current game, start one:
+async def try_to_add_player(p, ctx):
     global current_game
 
     #is this the correct condition? the game is not active while we are joining players
     #game becomes active when start_new_game is called
-    if is_game_active() == True:
+    if is_game_active():
         if current_game.check_for_player(p):
-            print("This player is already playing")
+            await ctx.send(f"{p.username} you've already joined the game.")
             return False
     
         current_game.player_join_game(p)
