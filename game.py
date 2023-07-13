@@ -1,6 +1,7 @@
 import time
 
 # Some dead kittens, I MEAN... globals...
+# for shame, ruler
 current_game = None
 a_game_is_active = False
 
