@@ -59,6 +59,15 @@ class Game():
     def _run(self):
         self.next_loop += self.increment
         #check for player and game timeouts
+        for p in self.active_players:
+            if p.hasPotato:
+                time_p_has_to_pass = p.check_countdown()
+                if time_p_has_to_pass <= 0:
+                    # might need ctx here
+                    print(f"The potato has been dropped by {p.username} who has {p.current_timeout}")
+                else:
+                    print(f"{p.username} has {p.current_timeout} seconds left to pass potato")
+
         #update self.dropped if needed
         #self.active = False
         if not self.done:
