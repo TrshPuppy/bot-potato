@@ -33,6 +33,7 @@ class Game():
     def start_game(self):
         self.start_time = int(time.time()) # format is Unix, ex: 162717366
         self.active = True
+        self.current_player = None #pick any player
 
     def end_game(self, et):
         self.active = False
@@ -51,7 +52,7 @@ class Game():
 
     def resolve_game(self):
         #might need to pass twitchio ctx when creating game so that we can write to chat here
-
+        self.active = False
         #do we reset game state or destroy this one and always construct a new one?
         return
 
@@ -59,14 +60,24 @@ class Game():
     def _run(self):
         self.next_loop += self.increment
         #check for player and game timeouts
-        for p in self.active_players:
-            if p.hasPotato:
-                time_p_has_to_pass = p.check_countdown()
-                if time_p_has_to_pass <= 0:
+        curr_time = time.time()
+        #global timeout?
+        if (curr_time - self.start_time) > self.game_timeout :
+            print(f"global timeout")
+            #resolve
+        else if (curr_time - self.current_player.time_received) > self.current_player.player_timeout) :
+            print(f"player timeout")
+            self.dropped = True
+            #resolve
+        #player timeout?
+#        for p in self.active_players:
+#            if p.hasPotato:
+#                time_p_has_to_pass = p.check_countdown()
+#                if time_p_has_to_pass <= 0:
                     # might need ctx here
-                    print(f"The potato has been dropped by {p.username} who has {p.current_timeout}")
-                else:
-                    print(f"{p.username} has {p.current_timeout} seconds left to pass potato")
+#                    print(f"The potato has been dropped by {p.username} who has {p.current_timeout}")
+#                else:
+#                    print(f"{p.username} has {p.current_timeout} seconds left to pass potato")
 
         #update self.dropped if needed
         #self.active = False
@@ -109,9 +120,18 @@ async def try_to_add_player(p, ctx):
     return False
     
 def pass_potato():
-    #validate toPlayer
+    #validate toPlayeri: exists in game, etc
+
     #check toPlayer lastPassed
+    if self.num_passes - toPlayer.last_passed < self.min_passes_between :
+        print(f"toPlayer already had it too recently")
+        return
+ 
     #update game and player states, e.g. time received, last passed, num_passes, current player...
+ 
     #TODO: decrease passing player timeout
    return 0
 
+def print_players(ctx):
+    #periodically print list of players to chat so people know who's playing
+    return
