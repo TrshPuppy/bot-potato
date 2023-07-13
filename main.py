@@ -61,7 +61,12 @@ async def join(ctx):
         print(f"New Player joined, player time received = {joined_player.time_received}")
         await ctx.send(f"new player joined!, welcome {joined_player.id}")
 
-# need: pass command
+@bot.command(name="pass")
+async def pass(ctx):
+    #passed = pass_potato(ctx.author.name, ctx.author.id, /*receiving player needs to be parsed from message */)
+    if passed : # passed == 0 on success
+        print(f"pass failed, interpret error codes")
+        await ctx.send(f"pass failed, write informative error to chat")
 
 # Bot event listeners: 
 @bot.event()
