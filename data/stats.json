@@ -1,3 +1,7 @@
 {
-    "test-stat": 500
+    "active": 0,
+    "active_players": [],
+    "current_player": {},
+    "game_time": 0,
+    "potato_dropped": 0
 }
