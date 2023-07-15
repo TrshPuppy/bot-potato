@@ -2,7 +2,7 @@
     "state": "idle",
     "current_player": "",
     "joined_players": [],
-    "game_timer": 0,
+    "game_time": 0,
     "max_game_time": 300,
     "pass_timer": 0,
     "max_hold_time": 30,

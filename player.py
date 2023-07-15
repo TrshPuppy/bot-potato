@@ -11,6 +11,7 @@ class Player:
         self.last_passed = (
             0  # global turn number where this player last received the potato.
         )
+
         self.time_received = 0
         self.current_timeout = 0  # the decreasing ammount of time player has to pass
         # self.hasPotato = False  # This might make it easier for game to check players?

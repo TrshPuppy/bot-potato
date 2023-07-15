@@ -23,18 +23,18 @@ class Game:
         self.time_to_pass = time_to_pass
         self.game_time = game_time
         # self.active = False
-        self.state = ""
-        self.num_passes = 0
-        self.current_player = None
-        self.active_players = []
-        self.game_timer = 0
-        self.pass_timer = 0
+        self.state = ""  # idle, lobby, ready, playing, won, lost
+        self.num_passes = 0  # num passes total since start
+        self.current_player = None  # player holding potato rn
+        self.joined_players = []  # players who joined during lobby
+        self.game_timer = 0  # how long the current game has been
+        self.pass_timer = 0  # how long its been since last potato pass
 
     def start_game(self):
         self.active = True
         if self.current_player is None:
-            random_player_indx = random.randint(0, len(self.active_players) - 1)
-            self.current_player = self.active_players[random_player_indx]
+            random_player_indx = random.randint(0, len(self.joined_players) - 1)
+            self.current_player = self.joined_players[random_player_indx]
 
         self.game_thread = threading.Thread(target=self.game_loop)
         self.game_thread.start()
@@ -54,7 +54,7 @@ class Game:
 
     def pass_potato(self, to_player):
         # Validate to_player: exists in game, etc.
-        if to_player not in self.active_players:
+        if to_player not in self.joined_players:
             print(f"{to_player.username} is not in the game.")
             return
 
@@ -78,12 +78,12 @@ class Game:
 
     def check_for_player(self, p):
         print(f"new player id is {p.id}")
-        if p in self.active_players:
+        if p in self.joined_players:
             return True
         return False
 
     def player_join_game(self, player):
-        self.active_players.append(player)
+        self.joined_players.append(player)
 
     def get_game_state(self):
         return "game stats"
@@ -118,7 +118,7 @@ def announce_new_game():
     with open("data/game_state.json", "w") as g:
         json.dump(game_state, g)
 
-    # Update current_game class with a function:
+    # Update current_game class with a function (that everything can reference):
     update_current_game(current_game)
 
     return
@@ -140,7 +140,7 @@ async def try_to_add_player(p, ctx):
 
     # if game_stats['active'] == 1:
 
-    # active_players = game_stats['active_players']
+    # joined_players = game_stats['joined_players']
 
     global current_game
     if current_game == None or is_game_active():
@@ -158,6 +158,14 @@ def print_players(ctx):
 def update_current_game(cg):
     with open("data/game_stats.json", "r") as f:
         game_state = json.load(f)
+
+    cg.state = game_state["state"]
+    cg.current_player = game_state["current_player"]
+    cg.joined_players = game_state["joined_players"]
+    cg.num_passes = game_state["num_passes"]
+    cg.game_time = game_state["game_time"]
+    cg.pass_timer = game_state["pass_timer"]
+    cg.game_timer = game_state["game_timer"]
 
 
 def get_current_game_instance():
