@@ -89,11 +89,11 @@ class Game:
         #     raise Exception(f"@{to_player.username} is not in the game.")
 
         # Make sure a player is not passing to themselves:
-        elif to_player.username == self.current_player.username:
+        if to_player.username == self.current_player.username:
             raise Exception(f"You cannnot pass to yourself {to_player.username}!")
 
         # Check passes
-        elif self.num_passes - to_player.last_passed < self.min_passes:
+        if self.num_passes - to_player.last_passed < self.min_passes:
             raise Exception(f"{to_player.username} had the potato too recently.")
 
         # update game and player states, e.g. time received, last passed, num_passes, current player...
