@@ -92,6 +92,12 @@ async def start(ctx):
     finally:
         # Once the game has finished or an exception has occurred, set bot's current_game to None
         print("Ending game")
+        if game.win:
+            await ctx.send(f"Congrats! Chat won hot potato!")
+        else:
+            await ctx.send(
+                f"@{bot.current_game.current_player.username} didn't pass the potato in time :("
+            )
         bot.current_game = None
         bot.lobby = None
 

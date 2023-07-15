@@ -27,6 +27,7 @@ class Game:
         self.active_players = set()
         self.game_timer = 0
         self.pass_timer = 0
+        self.win = None
 
     def start_game(self, ctx):
         self.active = True
@@ -38,16 +39,27 @@ class Game:
 
     async def game_loop(self, ctx):
         while self.active:
-            if self.pass_timer > self.time_to_pass:
-                await ctx.send(
-                    f"{self.current_player.username} failed to pass the potato in time!"
-                )
-                self.end_game(win=False)
-            if self.game_timer > self.game_time:
-                self.end_game(win=True)
+            self.check_for_win_state()
+            if self.win == True:
+                self.end_game()
+                break
+
+            if self.win == False:
+                self.end_game()
+                break
+
+            # if self.pass_timer > self.time_to_pass:
+            #     await ctx.send(
+            #         f"{self.current_player.username} failed to pass the potato in time!"
+            #     )
+            #     self.end_game(win=False)
+            # if self.game_timer > self.game_time:
+            #     self.end_game(win=True)
             await asyncio.sleep(1)  # non-blocking sleep
             self.game_timer += 1
+            print(f"game_timer: {self.game_timer} game_time: {self.game_time}")
             self.pass_timer += 1
+            print(f"pass_timer: {self.pass_timer} time_to_pass: {self.time_to_pass}")
 
     async def add_player(self, ctx):
         if self.active:
@@ -83,22 +95,26 @@ class Game:
         to_player.receive_potato(self.num_passes)
         self.current_player = to_player
 
-    def end_game(self, win):
-        self.active = False
-        if win:
-            print("Players won the game!")
-        else:
-            print("Players lost the game!")
+    def check_for_win_state(self):
+        print("checck win state")
+        if self.pass_timer > self.time_to_pass:
+            self.win = False
+            # raise Exception(f"{self.current_player} didn't pass the potato in time :(")
 
-    # def check_for_player(self, p):
-    #     print(f"new player id is {p.id}")
-    #     if p in self.active_players:
-    #         return True
-    #     return False
-    #
-    #
-    # def get_game_state(self):
-    #     return "game stats"
+        if self.game_timer > self.game_time:
+            self.win = True
+            # raise Exception(f"Congrats! Chat kept the potato up and won the game!")
+
+        return
+
+    def end_game(self):
+        self.active = False
+        # if self.win:
+        #     # self.win = True
+        #     print("Players won the game!")
+        # elif not self.win:
+        #     print("Players lost the game!")
+
     #
     # def resolve_game(self):
     #     # might need to pass twitchio ctx when creating game so that we can write to chat here
