@@ -42,7 +42,7 @@ async def hello(ctx):
 @bot.command(name="join")
 async def join(ctx):
     if bot.current_game is None:
-        await ctx.send("Sorry, there is no potato game right now.")
+        await ctx.send("Sorry, there is no potato game right now :(")
         return
 
     await bot.current_game.add_player(ctx)
@@ -56,7 +56,7 @@ async def start(ctx):
         return
     if not chatter_has_authority(ctx, channel_mods):
         await ctx.channel.send(
-            f"Sorry {ctx.author.name}, you can't start a potato game :("
+            f"Sorry @{ctx.author.name}, you can't start a potato game :("
         )
         return
 
@@ -65,26 +65,40 @@ async def start(ctx):
     bot.lobby = True
     try:
         # Announce the start of the game and wait for players to join
-        await ctx.send("Potato game starting soon! Join by typing '!join'")
-        await asyncio.sleep(10)
-        await ctx.send("30 sec left to join")
-        await ctx.send(f"Currently {len(game.active_players)} players have joined")
-        await asyncio.sleep(10)
+        await ctx.send(
+            "There's a piping Hot Potato dropping soon! Type '!join' to play!"
+        )
+        await asyncio.sleep(10)  # 30
+        await ctx.send("30 seconds left to join!")
+        await ctx.send(
+            f"{len(game.active_players)} players have joined for Hot Potato!"
+        )
+        await asyncio.sleep(10)  # 30/ 25
+        await ctx.send(
+            f"Hot Potato starting in 5 seconds! If you're holding the potato, you have 30 seconds to pass it! Type '!pass @<player username>' to pass it to your teammates!"
+        )
+        await ctx.send(f"If chat can keep the potato up for 5 minutes then chat wins!")
+        await asyncio.sleep(2)
+        await ctx.send(f"Hot Potato dropping in:")
+        await asyncio.sleep(1)
+        await ctx.send(f"3")
+        await asyncio.sleep(1)
+        await ctx.send(f"2")
+        await asyncio.sleep(1)
+        await ctx.send(f"1")
 
         # Check if there are enough players
         if (
             len(game.active_players) < 1
         ):  # Replace with your desired minimum number of players
-            await ctx.send("Not enough players joined the game. Try again later.")
+            await ctx.send("Not enough players joined for hot potato :(")
             bot.lobby = False
             return
 
         # Start the game
         bot.lobby = False
-        game.start_game(ctx)
-        await ctx.send(
-            f"Potato game has started with {len(game.active_players)} players!"
-        )
+        await ctx.send(f"START!")
+        await game.start_game(ctx)
 
         # # Wait for game to finish
         while game.active:
@@ -95,9 +109,7 @@ async def start(ctx):
         if game.win:
             await ctx.send(f"Congrats! Chat won hot potato!")
         else:
-            await ctx.send(
-                f"@{bot.current_game.current_player.username} didn't pass the potato in time :("
-            )
+            await ctx.send(f"@<replace me> didn't pass the potato in time :(")
         bot.current_game = None
         bot.lobby = None
 
@@ -130,18 +142,23 @@ async def end(ctx):
 async def pass_potato(ctx):
     if bot.lobby:
         return
+
+    # curr_player = bot.current_game.get_current_player()
+    # if ctx.author.name == curr_player.username:
+    #     await ctx.send(f"@{ctx.author.name}, you don't have the potato...?")
+    #     return
     # flags to check here:
     # set a flag to handle failures in  main
     # "trying to send to self" flag
     #  and "trying to send to inactive player" flag to check
+    # Need to check for chatters who did not join the game trying to play the game
 
     if bot.current_game is None:
-        await ctx.channel.send("Sorry, there is no potato to pass.")
+        await ctx.channel.send("Sorry, there is no potato to pass :(")
         return
 
     # Get the command content (everything after "!pass ")
     command_content = ctx.message.content.split(" ", 1)[-1].strip()
-    print(f"command_content = {command_content}")
 
     # Check if the command content starts with "@"
     if command_content.startswith("@"):
@@ -155,7 +172,7 @@ async def pass_potato(ctx):
                 print(f"player.username = {player.username}")
                 # Found the player, pass the potato to them
                 try:
-                    bot.current_game._pass_potato(player)
+                    bot.current_game._pass_potato(player, ctx.author.name)
                     await ctx.send(
                         f"{ctx.author.name} passed the potato to @{player.username}!"
                     )
@@ -166,9 +183,7 @@ async def pass_potato(ctx):
                     return
 
     # If we didn't find the player or the command was not properly formatted, send an error message
-    await ctx.send(
-        "Could not find the specified player. Make sure you are using the correct format: !pass @username"
-    )
+    await ctx.send(f"That player isn't playing! Use '!pass @<username>'")
 
 
 # Bot event listeners:
