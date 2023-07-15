@@ -30,6 +30,7 @@ bot = commands.Bot(
     initial_channels=["trshpuppy"],
 )
 bot.current_game = None
+bot.lobby = None
 
 
 # Bot commands:
@@ -41,7 +42,7 @@ async def hello(ctx):
 @bot.command(name="join")
 async def join(ctx):
     if bot.current_game is None:
-        await ctx.channel.send("Sorry, there is no potato game right now.")
+        await ctx.send("Sorry, there is no potato game right now.")
         return
 
     await bot.current_game.add_player(ctx)
@@ -50,6 +51,9 @@ async def join(ctx):
 # MOD commands
 @bot.command(name="start")
 async def start(ctx):
+    if bot.current_game != None:
+        await ctx.send("There's already a game in progress.")
+        return
     if not chatter_has_authority(ctx, channel_mods):
         await ctx.channel.send(
             f"Sorry {ctx.author.name}, you can't start a potato game :("
@@ -58,6 +62,7 @@ async def start(ctx):
 
     game = Game()
     bot.current_game = game
+    bot.lobby = True
     try:
         # Announce the start of the game and wait for players to join
         await ctx.send("Potato game starting soon! Join by typing '!join'")
@@ -68,15 +73,15 @@ async def start(ctx):
 
         # Check if there are enough players
         if (
-            # len(game.active_players) < MIN_PLAYERS
-            len(game.active_players)
-            < 1
+            len(game.active_players) < 1
         ):  # Replace with your desired minimum number of players
             await ctx.send("Not enough players joined the game. Try again later.")
+            bot.lobby = False
             return
 
         # Start the game
-        game.start_game()
+        bot.lobby = False
+        game.start_game(ctx)
         await ctx.send(
             f"Potato game has started with {len(game.active_players)} players!"
         )
@@ -84,11 +89,11 @@ async def start(ctx):
         # # Wait for game to finish
         while game.active:
             await asyncio.sleep(1)
-        # game.game_thread.join()
     finally:
         # Once the game has finished or an exception has occurred, set bot's current_game to None
         print("Ending game")
         bot.current_game = None
+        bot.lobby = None
 
 
 @bot.command(name="end")
@@ -117,12 +122,13 @@ async def end(ctx):
 
 @bot.command(name="pass")
 async def pass_potato(ctx):
+    if bot.lobby:
+        return
     # flags to check here:
     # set a flag to handle failures in  main
     # "trying to send to self" flag
     #  and "trying to send to inactive player" flag to check
 
-    print(f"current game is {bot.current_game}")
     if bot.current_game is None:
         await ctx.channel.send("Sorry, there is no potato to pass.")
         return
@@ -143,12 +149,13 @@ async def pass_potato(ctx):
                 print(f"player.username = {player.username}")
                 # Found the player, pass the potato to them
                 try:
-                    bot.current_game._pass_potato(player):
+                    bot.current_game._pass_potato(player)
                     await ctx.send(
                         f"{ctx.author.name} passed the potato to @{player.username}!"
                     )
                 except Exception as e:
-                    await ctx.send(e)
+                    # Send the errors greated in game._pass_potato to the chat:
+                    await ctx.send(f"{e}")
                 finally:
                     return
 
@@ -169,58 +176,6 @@ async def event_message(ctx):
     if ctx.echo:
         return
 
-    # # create chatter to put in recetn_chatters arr:
-    # new_chatter_obj = {
-    #     "name": ctx.author.name,
-    #     "id": ctx.author.id,
-    #     "last_chat_time": int(time.time()),
-    # }
-
-    # with open("data/chattters.json", "r") as f:
-    #     recent_chatters = json.load(f)
-
-    # found_chatter = -1
-
-    # for indx, c in enumerate(recent_chatters):
-    #     if c["id"] == new_chatter_obj["id"]:
-    #         found_chatter = indx
-
-    # if found_chatter == -1:
-    #     recent_chatters.append(new_chatter_obj)
-    # else:
-    #     recent_chatters[found_chatter] = new_chatter_obj
-
-    # with open("data/chattters.json", "w") as j:
-    #     json.dump(recent_chatters, j)
-
-
-# @bot.event()
-# async def join_event(ch, user):
-#     print(f"welcome to the chat {user.name}")
-
-#     # {
-#     # chatter.name
-#     # chatter.id
-#     # chatter.join_time (time.time())}
-
-#     recent_chatters.append(user)
-
 
 # Connect and run bot, it's listening to chat, this method is 'stopping':
 bot.run()
-
-
-# newChatter = {
-#     name: NameError
-#     id: id
-#     time: now
-# }
-
-
-# found = chatList.findIndex((x) => x.id == newChatter.id)
-
-# if found === -1{
-#     add that guy to end
-# }else{
-#     chatList[found] = newChatter
-# }

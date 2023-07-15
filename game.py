@@ -6,7 +6,7 @@ import asyncio
 # Some dead kittens, I MEAN... globals...
 DEFAULT_MIN_PASSES = 2
 DEFAULT_TIME_TO_PASS = 30
-DEFAULT_GAME_TIME = 5 * 60
+DEFAULT_GAME_TIME = 35
 
 
 # need some default parameters for game:
@@ -28,25 +28,18 @@ class Game:
         self.game_timer = 0
         self.pass_timer = 0
 
-    def start_game(self):
+    def start_game(self, ctx):
         self.active = True
         if self.current_player is None:
             self.current_player = self.active_players.pop()
             self.active_players.add(self.current_player)
 
-        self.loop_task = asyncio.create_task(self.game_loop())
+        self.loop_task = asyncio.create_task(self.game_loop(ctx))
 
-        # self.active = True
-        # if self.current_player is None:
-        #     self.current_player = self.active_players.pop()
-        #     self.active_players.add(self.current_player)
-        # self.game_thread = threading.Thread(target=self.game_loop)
-        # self.game_thread.start()
-
-    async def game_loop(self):
+    async def game_loop(self, ctx):
         while self.active:
             if self.pass_timer > self.time_to_pass:
-                await self.event_message(
+                await ctx.send(
                     f"{self.current_player.username} failed to pass the potato in time!"
                 )
                 self.end_game(win=False)
@@ -55,18 +48,6 @@ class Game:
             await asyncio.sleep(1)  # non-blocking sleep
             self.game_timer += 1
             self.pass_timer += 1
-
-    # while self.active:
-    #     if self.pass_timer > self.time_to_pass:
-    #         print(
-    #             f"{self.current_player.username} failed to pass the potato in time!"
-    #         )
-    #         self.end_game(win=False)
-    #     if self.game_timer > self.game_time:
-    #         self.end_game(win=True)
-    #     sleep(1)
-    #     self.game_timer += 1
-    #     self.pass_timer += 1
 
     async def add_player(self, ctx):
         if self.active:
@@ -105,9 +86,9 @@ class Game:
     def end_game(self, win):
         self.active = False
         if win:
-            print("Players won the game")
+            print("Players won the game!")
         else:
-            print("Players lost the game")
+            print("Players lost the game!")
 
     # def check_for_player(self, p):
     #     print(f"new player id is {p.id}")
@@ -124,39 +105,3 @@ class Game:
     #     self.active = False
     #     # do we reset game state or destroy this one and always construct a new one?
     #     return
-
-
-# def is_game_active():
-#     print(f"HEY!!! the game is {current_game}")
-#     if current_game is None:
-#         return False
-#     return current_game.active
-#
-#
-# def announce_new_game():
-#     global current_game
-#     print(f"announce new game current game is {current_game}")
-#     if is_game_active():
-#         print(f" announce is game active is {is_game_active()}")
-#         return
-#
-#     current_game = Game()
-#     print(f"after game made is game active call = {is_game_active()}")
-#     print(f"announce after game made current game is {current_game}")
-#     current_game.active = False
-#     return
-#
-#
-# def start_new_game():
-#     # This should only define and activate the 'current_game' variable
-#     global current_game
-#     if is_game_active() or current_game == None:
-#         return
-#
-#     current_game.start_game()
-#     return
-#
-#
-# def print_players(ctx):
-#     # periodically print list of players to chat so people know who's playing
-#     return
