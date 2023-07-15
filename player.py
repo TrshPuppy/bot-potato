@@ -22,10 +22,10 @@ class Player:
         self.last_passed = turn
         # set when they receive potato (vs when they pass it?)
         # self.hasPotato = True
-        self.current_timeout = DEFAULT_TIME_TO_PASS#.  # fixed time to pass, we can make this decay by not here.
+        self.current_timeout = DEFAULT_TIME_TO_PASS  # .  # fixed time to pass, we can make this decay by not here.
         # the passing player's time decays, not the receiving player
 
-    # the player doesn't need to check countdown. 
+    # the player doesn't need to check countdown.
     # the game loop is responsible for checking timeouts
     def check_countdown(self):
         time_now = int(time.time())
@@ -36,8 +36,6 @@ class Player:
             return 0
 
         return time_left_to_pass
-
-    # def pass_potato(self):
 
 
 async def create_and_get_player(ctx):
