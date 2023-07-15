@@ -81,8 +81,10 @@ async def start(ctx):
             f"Potato game has started with {len(game.active_players)} players!"
         )
 
-        # Wait for game to finish
-        game.game_thread.join()
+        # # Wait for game to finish
+        while game.active:
+            await asyncio.sleep(1)
+        # game.game_thread.join()
     finally:
         # Once the game has finished or an exception has occurred, set bot's current_game to None
         print("Ending game")
@@ -115,6 +117,11 @@ async def end(ctx):
 
 @bot.command(name="pass")
 async def pass_potato(ctx):
+    # flags to check here:
+    # set a flag to handle failures in  main
+    # "trying to send to self" flag
+    #  and "trying to send to inactive player" flag to check
+
     print(f"current game is {bot.current_game}")
     if bot.current_game is None:
         await ctx.channel.send("Sorry, there is no potato to pass.")
@@ -135,9 +142,13 @@ async def pass_potato(ctx):
             if player.username == username:
                 print(f"player.username = {player.username}")
                 # Found the player, pass the potato to them
-                bot.current_game._pass_potato(player, ctx)
-                await ctx.send(f"{ctx.author.name} passed the potato to {username}!")
-                return
+                if await bot.current_game._pass_potato(player, ctx):
+                    await ctx.send(
+                        f"{ctx.author.name} passed the potato to @{player.username}!"
+                    )
+                    return
+                else:
+                    break
 
     # If we didn't find the player or the command was not properly formatted, send an error message
     await ctx.send(

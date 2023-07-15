@@ -1,6 +1,7 @@
 from time import sleep
 from player import Player
 import threading
+import asyncio
 
 # Some dead kittens, I MEAN... globals...
 DEFAULT_MIN_PASSES = 2
@@ -32,21 +33,40 @@ class Game:
         if self.current_player is None:
             self.current_player = self.active_players.pop()
             self.active_players.add(self.current_player)
-        self.game_thread = threading.Thread(target=self.game_loop)
-        self.game_thread.start()
 
-    def game_loop(self):
+        self.loop_task = asyncio.create_task(self.game_loop())
+
+        # self.active = True
+        # if self.current_player is None:
+        #     self.current_player = self.active_players.pop()
+        #     self.active_players.add(self.current_player)
+        # self.game_thread = threading.Thread(target=self.game_loop)
+        # self.game_thread.start()
+
+    async def game_loop(self):
         while self.active:
             if self.pass_timer > self.time_to_pass:
-                print(
+                await self.event_message(
                     f"{self.current_player.username} failed to pass the potato in time!"
                 )
                 self.end_game(win=False)
             if self.game_timer > self.game_time:
                 self.end_game(win=True)
-            sleep(1)
+            await asyncio.sleep(1)  # non-blocking sleep
             self.game_timer += 1
             self.pass_timer += 1
+
+    # while self.active:
+    #     if self.pass_timer > self.time_to_pass:
+    #         print(
+    #             f"{self.current_player.username} failed to pass the potato in time!"
+    #         )
+    #         self.end_game(win=False)
+    #     if self.game_timer > self.game_time:
+    #         self.end_game(win=True)
+    #     sleep(1)
+    #     self.game_timer += 1
+    #     self.pass_timer += 1
 
     async def add_player(self, ctx):
         if self.active:
@@ -63,29 +83,28 @@ class Game:
             self.active_players.add(new_player)
             await ctx.send(f"New player joined!, welcome {new_player.username}")
 
-    def _pass_potato(self, to_player, ctx):
+    async def _pass_potato(self, to_player, ctx):
         # Validate to_player: exists in game, etc.
         if to_player not in self.active_players:
-            print(f"{to_player.username} is not in the game.")
-            return
+            await ctx.send(f"@{to_player.username} is not in the game.")
+            return False
 
         # Make sure a player is not passing to themselves:
         if to_player.username == self.current_player.username:
-            print(
-                f"You cannnot pass to yourself {to_player.username} => {self.current_player.username}"
-            )
-            return
+            await ctx.send(f"You cannnot pass to yourself {to_player.username}!")
+            return False
 
         # Check passes
         if self.num_passes - to_player.last_passed < self.min_passes:
-            print(f"{to_player.username} already had it too recently.")
-            return
+            await ctx.send(f"{to_player.username} had the potato too recently.")
+            return False
 
         # update game and player states, e.g. time received, last passed, num_passes, current player...
         self.num_passes += 1
         self.pass_timer = 0
         to_player.receive_potato(self.num_passes)
         self.current_player = to_player
+        return True
 
     def end_game(self, win):
         self.active = False
