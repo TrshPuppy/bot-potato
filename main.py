@@ -15,7 +15,7 @@ with open("data/api.json") as f:
 bot_username = api["Bot"]["BOT_USERNAME"]
 prefix = api["Bot"]["PREFIX"]
 channel_mods = api["Bot"]["MODLIST"]
-MIN_PLAYERS = 4
+MIN_PLAYERS = 1
 
 # Load game stats from data/stats.json:
 with open("data/stats.json") as g:
@@ -31,8 +31,6 @@ bot = commands.Bot(
 )
 bot.current_game = None
 
-bot.current_game = None
-
 
 # Bot commands:
 @bot.command(name="hello")
@@ -42,7 +40,7 @@ async def hello(ctx):
 
 @bot.command(name="join")
 async def join(ctx):
-    if bot.current_game == None:
+    if bot.current_game is None:
         await ctx.channel.send("Sorry, there is no potato game right now.")
         return
 
@@ -63,10 +61,10 @@ async def start(ctx):
     try:
         # Announce the start of the game and wait for players to join
         await ctx.send("Potato game starting soon! Join by typing '!join'")
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
         await ctx.send("30 sec left to join")
         await ctx.send(f"Currently {len(game.active_players)} players have joined")
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
 
         # Check if there are enough players
         if (
@@ -114,21 +112,37 @@ async def end(ctx):
 
 # Player commands
 
-# @bot.command(name="join")
-# async def join(ctx):
-#     joined_player = create_and_get_player(ctx)
 
-#     player_added = await try_to_add_player(joined_player, ctx)
-#     if player_added:
-#         print(f"New Player joined, player time received = {joined_player.time_received}")
-#         await ctx.send(f"New player joined!, welcome {joined_player.username}")
+@bot.command(name="pass")
+async def pass_potato(ctx):
+    print(f"current game is {bot.current_game}")
+    if bot.current_game is None:
+        await ctx.channel.send("Sorry, there is no potato to pass.")
+        return
 
-# @bot.command(name="pass")
-# async def pass(ctx):
-#     #passed = pass_potato(ctx.author.name, ctx.author.id, /*receiving player needs to be parsed from message */)
-#     if passed : # passed == 0 on success
-#         print(f"pass failed, interpret error codes")
-#         await ctx.send(f"pass failed, write informative error to chat")
+    # Get the command content (everything after "!pass ")
+    command_content = ctx.message.content.split(" ", 1)[-1].strip()
+    print(f"command_content = {command_content}")
+
+    # Check if the command content starts with "@"
+    if command_content.startswith("@"):
+        # Remove the "@" from the beginning
+        username = command_content[1:].lower()
+        print(f"username is {username}")
+
+        # Search for the player with this username in the active players of the game
+        for player in bot.current_game.active_players:
+            if player.username == username:
+                print(f"player.username = {player.username}")
+                # Found the player, pass the potato to them
+                bot.current_game._pass_potato(player, ctx)
+                await ctx.send(f"{ctx.author.name} passed the potato to {username}!")
+                return
+
+    # If we didn't find the player or the command was not properly formatted, send an error message
+    await ctx.send(
+        "Could not find the specified player. Make sure you are using the correct format: !pass @username"
+    )
 
 
 # Bot event listeners:

@@ -63,10 +63,17 @@ class Game:
             self.active_players.add(new_player)
             await ctx.send(f"New player joined!, welcome {new_player.username}")
 
-    def pass_potato(self, to_player):
+    def _pass_potato(self, to_player, ctx):
         # Validate to_player: exists in game, etc.
         if to_player not in self.active_players:
             print(f"{to_player.username} is not in the game.")
+            return
+
+        # Make sure a player is not passing to themselves:
+        if to_player.username == self.current_player.username:
+            print(
+                f"You cannnot pass to yourself {to_player.username} => {self.current_player.username}"
+            )
             return
 
         # Check passes

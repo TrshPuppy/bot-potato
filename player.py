@@ -1,7 +1,7 @@
 class Player:
     def __init__(self, u, i):
         self.id = i
-        self.username = u
+        self.username = u.lower()
         self.last_passed = (
             0  # global turn number where this player last received the potato
         )
