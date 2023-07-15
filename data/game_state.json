@@ -8,4 +8,5 @@
     "max_hold_time": 30,
     "min_passes_between": 2,
     "num_passes": 0,
+    "minimum_players_needed": 3
 }

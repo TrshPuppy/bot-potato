@@ -13,15 +13,17 @@ DEFAULT_GAME_TIME = 5 * 60
 # need some default parameters for game:
 class Game:
     # use default values for ctor parameters
-    def __init__(self,
-                 min_passes=DEFAULT_MIN_PASSES,
-                 time_to_pass=DEFAULT_TIME_TO_PASS,
-                 game_time=DEFAULT_GAME_TIME):
-
+    def __init__(
+        self,
+        min_passes=DEFAULT_MIN_PASSES,
+        time_to_pass=DEFAULT_TIME_TO_PASS,
+        game_time=DEFAULT_GAME_TIME,
+    ):
         self.min_passes = min_passes
         self.time_to_pass = time_to_pass
         self.game_time = game_time
-        self.active = False
+        # self.active = False
+        self.state = ""
         self.num_passes = 0
         self.current_player = None
         self.active_players = []
@@ -32,9 +34,7 @@ class Game:
         self.active = True
         if self.current_player is None:
             random_player_indx = random.randint(0, len(self.active_players) - 1)
-            self.current_player = self.active_players[
-                random_player_indx
-            ]
+            self.current_player = self.active_players[random_player_indx]
 
         self.game_thread = threading.Thread(target=self.game_loop)
         self.game_thread.start()
@@ -42,7 +42,9 @@ class Game:
     def game_loop(self):
         while self.active:
             if self.pass_timer > self.time_to_pass:
-                print(f"{self.current_player.username} failed to pass the potato in time!")
+                print(
+                    f"{self.current_player.username} failed to pass the potato in time!"
+                )
                 self.end_game(win=False)
             if self.game_timer > self.game_time:
                 self.end_game(win=True)
@@ -55,7 +57,7 @@ class Game:
         if to_player not in self.active_players:
             print(f"{to_player.username} is not in the game.")
             return
-            
+
         # Check passes
         if self.num_passes - to_player.last_passed < self.min_passes_between:
             print(f"{to_player.username} already had it too recently.")
@@ -64,17 +66,15 @@ class Game:
         # update game and player states, e.g. time received, last passed, num_passes, current player...
         self.num_passes += 1
         self.pass_timer = 0
-        to_player.receive_potato(
-            self.num_passes)
+        to_player.receive_potato(self.num_passes)
         self.current_player = to_player
-        
 
     def end_game(self, win):
         self.active = False
         if win:
-            print('Players won the game')
+            print("Players won the game")
         else:
-            print('Players lost the game')
+            print("Players lost the game")
 
     def check_for_player(self, p):
         print(f"new player id is {p.id}")
@@ -103,16 +103,24 @@ def is_game_active():
 
 
 def announce_new_game():
-    global current_game
-    print(f"announce new game current game is {current_game}")
-    if is_game_active():
-        print(f" announce is game active is {is_game_active()}")
+    with open("data/game_stats.json", "r") as f:
+        game_state = json.load(f)
+
+    if game_state["state"] != "idle":
         return
 
+    # Create new game instance
+    current_game = None
     current_game = Game()
-    print(f"after game made is game active call = {is_game_active()}")
-    print(f"announce after game made current game is {current_game}")
-    current_game.active = False
+
+    # Set game state to lobby on class and in JSON:
+    game_state["state"] = "lobby"
+    with open("data/game_state.json", "w") as g:
+        json.dump(game_state, g)
+
+    # Update current_game class with a function:
+    update_current_game(current_game)
+
     return
 
 
@@ -144,4 +152,13 @@ async def try_to_add_player(p, ctx):
 
 def print_players(ctx):
     # periodically print list of players to chat so people know who's playing
+    return
+
+
+def update_current_game(cg):
+    with open("data/game_stats.json", "r") as f:
+        game_state = json.load(f)
+
+
+def get_current_game_instance():
     return
