@@ -8,6 +8,7 @@ class Player:
         # self.hasPotato = False  # This might make it easier for game to check players?
 
     def receive_potato(self, turn):
+        print(f"Player {self.username} has been passed the potato")
         self.last_passed = turn
 
     def __hash__(self):
