@@ -142,13 +142,15 @@ async def pass_potato(ctx):
             if player.username == username:
                 print(f"player.username = {player.username}")
                 # Found the player, pass the potato to them
-                if await bot.current_game._pass_potato(player, ctx):
+                try:
+                    bot.current_game._pass_potato(player):
                     await ctx.send(
                         f"{ctx.author.name} passed the potato to @{player.username}!"
                     )
+                except Exception as e:
+                    await ctx.send(e)
+                finally:
                     return
-                else:
-                    break
 
     # If we didn't find the player or the command was not properly formatted, send an error message
     await ctx.send(
