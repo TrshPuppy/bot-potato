@@ -14,6 +14,7 @@ with open("data/api.json") as f:
 bot_username = api["Bot"]["BOT_USERNAME"]
 prefix = api["Bot"]["PREFIX"]
 channel_mods = api["Bot"]["MODLIST"]
+MIN_PLAYERS = 4
 
 # Load game stats from data/stats.json:
 with open("data/stats.json") as g:
@@ -37,40 +38,48 @@ async def hello(ctx):
 
 @bot.command(name="join")
 async def join(ctx):
-    joined_player = await create_and_get_player(ctx)
-
-    if joined_player == 0:
-        await ctx.send(f"{ctx.author.name} you've already joined the game.")
-        return
-
-    player_added = await try_to_add_player(joined_player, ctx)
-    if player_added:
-        await ctx.send(f"New player joined!, welcome {joined_player.username}")
+    await bot.current_game.add_player(ctx)
 
 
 # MOD commands
-@bot.command(name="announce")
-async def announce(ctx):
-    global current_game
-    if chatter_has_authority(ctx, channel_mods):
-        await ctx.send("Potato game starting soon! Join by typing '!join'")
-        announce_new_game()
-        print(f"announce command current_game is {current_game}")
-    else:
+@bot.command(name="start")
+async def start(ctx):
+    if not chatter_has_authority(ctx, channel_mods):
+        await ctx.channel.send(f"Sorry {ctx.author.name}, you can't start a potato game :(")
         return
 
-    # logic for players can join
+    game = Game()
+    bot.current_game = game
+
+    # Announce the start of the game and wait for players to join
+    await ctx.send("Potato game starting soon! Join by typing '!join'")
+    await asyncio.sleep(30)
+    await ctx.send('30 sec left to join')
+    await ctx.send(f'currently {len(game.active_players)} players have joined')
+    await asyncio.sleep(30)
+
+    # Check if there are enough players
+    if len(current_game.active_players) < MIN_PLAYERS:  # replace with your desired minimum number of players
+        await ctx.send("Not enough players joined the game. Try again later.")
+        return
+
+    # Start the game
+    game.start_game()
+    await ctx.send(f"Potato game has started with {len(game.active_players)} players!")
 
 
-@bot.command(name="start")  # This is the only pplace we  should start a game:
-async def start(ctx):
-    if chatter_has_authority(ctx, channel_mods):
-        await ctx.send("Potato game starting...")
-        start_new_game()
+@bot.command(name="end")
+async def end(ctx):
+    if not chatter_has_authority(ctx, channel_mods):
+        await ctx.send(f"Sorry {ctx.author.name}, you can't end the potato game :(")
+        return
+
+    # End the current game
+    if hasattr(bot, "current_game"):
+        bot.current_game.end_game(win=False)  # or win=True, depending on the context
+        await ctx.send("Potato game has ended!")
     else:
-        await ctx.channel.send(
-            f"Sorry {ctx.author.name}, you can't start a potato game :("
-        )
+        await ctx.send("No game is currently running.")
 
 
 # nice to have: add an announce command to get players to join
@@ -165,3 +174,5 @@ bot.run()
 # }else{
 #     chatList[found] = newChatter
 # }
+
+
