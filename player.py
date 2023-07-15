@@ -22,7 +22,7 @@ class Player:
         self.last_passed = turn
         # set when they receive potato (vs when they pass it?)
         # self.hasPotato = True
-        self.current_timeout = DEFAULT_TIME_TO_PASS.  # fixed time to pass, we can make this decay by not here.
+        self.current_timeout = DEFAULT_TIME_TO_PASS#.  # fixed time to pass, we can make this decay by not here.
         # the passing player's time decays, not the receiving player
 
     # the player doesn't need to check countdown. 
