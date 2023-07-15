@@ -77,10 +77,19 @@ class Game:
             print("Players lost the game")
 
     def check_for_player(self, p):
-        print(f"new player id is {p.id}")
-        if p in self.joined_players:
-            return True
-        return False
+        # Check self.joined_players  for matching player id:
+        for jp in self.joined_players:
+            if jp.id == p.id:
+                print(f"Player {p.username}, {p.id} is already joined.")
+                return True
+
+            print(f"Player {p.username}, {p.id} is already joined.")
+            return False
+
+        # print(f"new player id is {p.id}")
+        # if p in self.joined_players:
+        #     return True
+        # return False
 
     def player_join_game(self, player):
         self.joined_players.append(player)
@@ -132,9 +141,14 @@ def start_new_game():
 
 async def try_to_add_player(p, ctx):
     current_game = get_current_game_instance()
-    print(f"current game in try add is {current_game.state}")
+
     if current_game == None or current_game.state != "lobby":
         print(f"Sorry, can't join game right now.")
+        return
+
+    player_already_joined = current_game.check_for_player(p)
+
+    if player_already_joined:
         return
 
     current_game.player_join_game(p)
