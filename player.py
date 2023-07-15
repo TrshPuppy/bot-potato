@@ -40,18 +40,11 @@ class Player:
 
 
 async def create_and_get_player(ctx):
-    # current_game = get_current_game_instance()
-
-    # if current_game == None or current_game.active:
-    #     return 0
-
+    # this function just creates a player:
+    # it shouldn't be handling any other logic (ahem... TrshPuppy...
+    # this note is for you bud)
     p_username = ctx.author.name
     p_id = ctx.author.id
-    # for p in current_game.joined_players:
-    #     if p.id == p_id:
-    #         await ctx.send(f"{ctx.author.name}, you've already joined.")
-    #         return 0
-
     new_player = Player(p_username, p_id)
 
     return new_player
