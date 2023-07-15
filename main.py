@@ -29,6 +29,7 @@ bot = commands.Bot(
     prefix=prefix,
     initial_channels=["trshpuppy"],
 )
+bot.current_game = None
 
 bot.current_game = None
 
