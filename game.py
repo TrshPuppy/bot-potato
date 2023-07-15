@@ -83,28 +83,24 @@ class Game:
             self.active_players.add(new_player)
             await ctx.send(f"New player joined!, welcome {new_player.username}")
 
-    async def _pass_potato(self, to_player, ctx):
+    def _pass_potato(self, to_player, ctx):
         # Validate to_player: exists in game, etc.
         if to_player not in self.active_players:
-            await ctx.send(f"@{to_player.username} is not in the game.")
-            return False
+            raise Exception(f"@{to_player.username} is not in the game.")
 
         # Make sure a player is not passing to themselves:
-        if to_player.username == self.current_player.username:
-            await ctx.send(f"You cannnot pass to yourself {to_player.username}!")
-            return False
+        elif to_player.username == self.current_player.username:
+            raise Exception(f"You cannnot pass to yourself {to_player.username}!")
 
         # Check passes
-        if self.num_passes - to_player.last_passed < self.min_passes:
-            await ctx.send(f"{to_player.username} had the potato too recently.")
-            return False
+        elif self.num_passes - to_player.last_passed < self.min_passes:
+            raise Exception(f"{to_player.username} had the potato too recently.")
 
         # update game and player states, e.g. time received, last passed, num_passes, current player...
         self.num_passes += 1
         self.pass_timer = 0
         to_player.receive_potato(self.num_passes)
         self.current_player = to_player
-        return True
 
     def end_game(self, win):
         self.active = False
