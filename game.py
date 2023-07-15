@@ -7,7 +7,7 @@ import json
 current_game = None
 DEFAULT_MIN_PASSES = 2
 DEFAULT_TIME_TO_PASS = 30
-DEFAULT_GAME_TIME = 5 * 60
+DEFAULT_GAME_TIMEOUT = 5 * 60
 
 
 # need some default parameters for game:
@@ -17,12 +17,12 @@ class Game:
         self,
         min_passes=DEFAULT_MIN_PASSES,
         time_to_pass=DEFAULT_TIME_TO_PASS,
-        game_time=DEFAULT_GAME_TIME,
+        game_timeout=DEFAULT_GAME_TIMEOUT,
     ):
         self.min_passes = min_passes
         self.time_to_pass = time_to_pass
-        self.game_time = game_time
-        # self.active = False
+        self.game_timeout = game_timeout
+        self.active = False
         self.state = ""  # idle, lobby, ready, playing, won, lost
         self.num_passes = 0  # num passes total since start
         self.current_player = None  # player holding potato rn
@@ -46,10 +46,10 @@ class Game:
                     f"{self.current_player.username} failed to pass the potato in time!"
                 )
                 self.end_game(win=False)
-            if self.game_timer > self.game_time:
+            if self.game_timeoutr > self.game_timeout:
                 self.end_game(win=True)
             sleep(1)
-            self.game_timer += 1
+            self.game_timeoutr += 1
             self.pass_timer += 1
 
     def pass_potato(self, to_player):
@@ -95,21 +95,17 @@ class Game:
         return
 
 
-def is_game_active():
-    print(f"HEY!!! the game is {current_game}")
-    if current_game is None:
-        return False
-    return current_game.active
-
-
 def announce_new_game():
-    with open("data/game_stats.json", "r") as f:
+    global current_game
+    with open("data/game_state.json", "r") as f:
         game_state = json.load(f)
 
     if game_state["state"] != "idle":
+        print(f"A game has already been annnounced.")
         return
 
     # Create new game instance
+    print("Creating new game...")
     current_game = None
     current_game = Game()
 
@@ -135,15 +131,10 @@ def start_new_game():
 
 
 async def try_to_add_player(p, ctx):
-    # with open("data/stats.json", "r") as f:
-    #     game_stats = json.load(f)
-
-    # if game_stats['active'] == 1:
-
-    # joined_players = game_stats['joined_players']
-
-    global current_game
-    if current_game == None or is_game_active():
+    current_game = get_current_game_instance()
+    print(f"current game in try add is {current_game.state}")
+    if current_game == None or current_game.state != "lobby":
+        print(f"Sorry, can't join game right now.")
         return
 
     current_game.player_join_game(p)
@@ -156,17 +147,18 @@ def print_players(ctx):
 
 
 def update_current_game(cg):
-    with open("data/game_stats.json", "r") as f:
+    with open("data/game_state.json", "r") as f:
         game_state = json.load(f)
 
     cg.state = game_state["state"]
     cg.current_player = game_state["current_player"]
     cg.joined_players = game_state["joined_players"]
     cg.num_passes = game_state["num_passes"]
-    cg.game_time = game_state["game_time"]
-    cg.pass_timer = game_state["pass_timer"]
     cg.game_timer = game_state["game_timer"]
+    cg.pass_timer = game_state["pass_timer"]
 
 
 def get_current_game_instance():
-    return
+    global current_game
+
+    return current_game

@@ -15,9 +15,6 @@ bot_username = api["Bot"]["BOT_USERNAME"]
 prefix = api["Bot"]["PREFIX"]
 channel_mods = api["Bot"]["MODLIST"]
 
-# Load game stats from data/stats.json:
-with open("data/stats.json") as g:
-    stats = json.load(g)
 
 # Create bot using 'commands' from twitchio and api data:
 bot = commands.Bot(
@@ -38,12 +35,11 @@ async def hello(ctx):
 # MOD commands
 @bot.command(name="announce")
 async def announce(ctx):
-    global current_game
     if chatter_has_authority(ctx, channel_mods):
         await ctx.send("Potato game starting soon! Join by typing '!join'")
         announce_new_game()
-        print(f"announce command current_game is {current_game}")
     else:
+        await ctx.send(f"Sorry {ctx.author.name}, you can't start a potato game :(")
         return
 
 
@@ -71,9 +67,9 @@ async def start(ctx):
 async def join(ctx):
     joined_player = await create_and_get_player(ctx)
 
-    if joined_player == 0:
-        await ctx.send(f"{ctx.author.name} you've already joined the game.")
-        return
+    # if joined_player == 0:
+    #     await ctx.send(f"{ctx.author.name} you've already joined the game.")
+    #     return
 
     player_added = await try_to_add_player(joined_player, ctx)
     if player_added:

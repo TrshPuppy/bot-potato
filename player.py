@@ -1,5 +1,5 @@
 import time
-from game import current_game
+from game import get_current_game_instance
 
 DEFAULT_TIME_TO_PASS = 30
 
@@ -40,17 +40,17 @@ class Player:
 
 
 async def create_and_get_player(ctx):
-    global current_game
+    # current_game = get_current_game_instance()
 
-    if current_game == None or current_game.active:
-        return 0
+    # if current_game == None or current_game.active:
+    #     return 0
 
     p_username = ctx.author.name
     p_id = ctx.author.id
-    for p in current_game.active_players:
-        if p.id == p_id:
-            await ctx.send(f"{ctx.author.name}, you've already joined.")
-            return 0
+    # for p in current_game.joined_players:
+    #     if p.id == p_id:
+    #         await ctx.send(f"{ctx.author.name}, you've already joined.")
+    #         return 0
 
     new_player = Player(p_username, p_id)
 
