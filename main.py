@@ -35,19 +35,6 @@ async def hello(ctx):
     await ctx.send("Hello World!")
 
 
-@bot.command(name="join")
-async def join(ctx):
-    joined_player = await create_and_get_player(ctx)
-
-    if joined_player == 0:
-        await ctx.send(f"{ctx.author.name} you've already joined the game.")
-        return
-
-    player_added = await try_to_add_player(joined_player, ctx)
-    if player_added:
-        await ctx.send(f"New player joined!, welcome {joined_player.username}")
-
-
 # MOD commands
 @bot.command(name="announce")
 async def announce(ctx):
@@ -58,8 +45,6 @@ async def announce(ctx):
         print(f"announce command current_game is {current_game}")
     else:
         return
-
-    # logic for players can join
 
 
 @bot.command(name="start")  # This is the only pplace we  should start a game:
@@ -80,16 +65,20 @@ async def start(ctx):
 
 # nice to have: end game command for mods
 
-# Player commands
 
-# @bot.command(name="join")
-# async def join(ctx):
-#     joined_player = create_and_get_player(ctx)
+# Player commands:
+@bot.command(name="join")
+async def join(ctx):
+    joined_player = await create_and_get_player(ctx)
 
-#     player_added = await try_to_add_player(joined_player, ctx)
-#     if player_added:
-#         print(f"New Player joined, player time received = {joined_player.time_received}")
-#         await ctx.send(f"New player joined!, welcome {joined_player.username}")
+    if joined_player == 0:
+        await ctx.send(f"{ctx.author.name} you've already joined the game.")
+        return
+
+    player_added = await try_to_add_player(joined_player, ctx)
+    if player_added:
+        await ctx.send(f"New player joined!, welcome {joined_player.username}")
+
 
 # @bot.command(name="pass")
 # async def pass(ctx):
@@ -135,33 +124,5 @@ async def event_message(ctx):
     #     json.dump(recent_chatters, j)
 
 
-# @bot.event()
-# async def join_event(ch, user):
-#     print(f"welcome to the chat {user.name}")
-
-#     # {
-#     # chatter.name
-#     # chatter.id
-#     # chatter.join_time (time.time())}
-
-#     recent_chatters.append(user)
-
-
 # Connect and run bot, it's listening to chat, this method is 'stopping':
 bot.run()
-
-
-# newChatter = {
-#     name: NameError
-#     id: id
-#     time: now
-# }
-
-
-# found = chatList.findIndex((x) => x.id == newChatter.id)
-
-# if found === -1{
-#     add that guy to end
-# }else{
-#     chatList[found] = newChatter
-# }
