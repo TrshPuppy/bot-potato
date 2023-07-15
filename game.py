@@ -85,8 +85,8 @@ class Game:
 
     def _pass_potato(self, to_player):
         # Validate to_player: exists in game, etc.
-        if to_player not in self.active_players:
-            raise Exception(f"@{to_player.username} is not in the game.")
+        # if to_player not in self.active_players:
+        #     raise Exception(f"@{to_player.username} is not in the game.")
 
         # Make sure a player is not passing to themselves:
         elif to_player.username == self.current_player.username:
