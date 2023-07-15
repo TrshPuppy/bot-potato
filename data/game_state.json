@@ -1,1 +1,12 @@
-{"state": "lobby", "current_player": "", "joined_players": [], "game_timer": 0, "max_game_time": 300, "pass_timer": 0, "max_hold_time": 30, "min_passes_between": 2, "num_passes": 0, "minimum_players_needed": 3}
+{
+    "state": "lidle",
+    "current_player": "",
+    "joined_players": [],
+    "game_timer": 0,
+    "max_game_time": 300,
+    "pass_timer": 0,
+    "max_hold_time": 30,
+    "min_passes_between": 2,
+    "num_passes": 0,
+    "minimum_players_needed": 3
+}
