@@ -11,11 +11,12 @@ DEFAULT_GAME_TIME = 5 * 60
 # need some default parameters for game:
 class Game:
     # use default values for ctor parameters
-    def __init__(self,
-                 min_passes=DEFAULT_MIN_PASSES,
-                 time_to_pass=DEFAULT_TIME_TO_PASS,
-                 game_time=DEFAULT_GAME_TIME):
-
+    def __init__(
+        self,
+        min_passes=DEFAULT_MIN_PASSES,
+        time_to_pass=DEFAULT_TIME_TO_PASS,
+        game_time=DEFAULT_GAME_TIME,
+    ):
         self.min_passes = min_passes
         self.time_to_pass = time_to_pass
         self.game_time = game_time
@@ -37,7 +38,9 @@ class Game:
     def game_loop(self):
         while self.active:
             if self.pass_timer > self.time_to_pass:
-                print(f"{self.current_player.username} failed to pass the potato in time!")
+                print(
+                    f"{self.current_player.username} failed to pass the potato in time!"
+                )
                 self.end_game(win=False)
             if self.game_timer > self.game_time:
                 self.end_game(win=True)
@@ -47,7 +50,9 @@ class Game:
 
     async def add_player(self, ctx):
         if self.active:
-            await ctx.send("The game is already active. Wait for the next game to join.")
+            await ctx.send(
+                "The game is already active. Wait for the next game to join."
+            )
             return
 
         new_player = Player(ctx.author.name, ctx.author.id)
@@ -65,23 +70,22 @@ class Game:
             return
 
         # Check passes
-        if self.num_passes - to_player.last_passed < self.min_passes_between:
+        if self.num_passes - to_player.last_passed < self.min_passes:
             print(f"{to_player.username} already had it too recently.")
             return
 
         # update game and player states, e.g. time received, last passed, num_passes, current player...
         self.num_passes += 1
         self.pass_timer = 0
-        to_player.receive_potato(
-            self.num_passes)
+        to_player.receive_potato(self.num_passes)
         self.current_player = to_player
 
     def end_game(self, win):
         self.active = False
         if win:
-            print('Players won the game')
+            print("Players won the game")
         else:
-            print('Players lost the game')
+            print("Players lost the game")
 
     # def check_for_player(self, p):
     #     print(f"new player id is {p.id}")

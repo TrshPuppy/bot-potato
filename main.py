@@ -1,6 +1,7 @@
 from twitchio.ext import commands
 import time
 import json
+import asyncio
 
 # Local modules:
 from player import *
@@ -29,6 +30,8 @@ bot = commands.Bot(
     initial_channels=["trshpuppy"],
 )
 
+bot.current_game = None
+
 
 # Bot commands:
 @bot.command(name="hello")
@@ -38,6 +41,10 @@ async def hello(ctx):
 
 @bot.command(name="join")
 async def join(ctx):
+    if bot.current_game == None:
+        await ctx.channel.send("Sorry, there is no potato game right now.")
+        return
+
     await bot.current_game.add_player(ctx)
 
 
@@ -45,27 +52,42 @@ async def join(ctx):
 @bot.command(name="start")
 async def start(ctx):
     if not chatter_has_authority(ctx, channel_mods):
-        await ctx.channel.send(f"Sorry {ctx.author.name}, you can't start a potato game :(")
+        await ctx.channel.send(
+            f"Sorry {ctx.author.name}, you can't start a potato game :("
+        )
         return
 
     game = Game()
     bot.current_game = game
+    try:
+        # Announce the start of the game and wait for players to join
+        await ctx.send("Potato game starting soon! Join by typing '!join'")
+        await asyncio.sleep(3)
+        await ctx.send("30 sec left to join")
+        await ctx.send(f"Currently {len(game.active_players)} players have joined")
+        await asyncio.sleep(3)
 
-    # Announce the start of the game and wait for players to join
-    await ctx.send("Potato game starting soon! Join by typing '!join'")
-    await asyncio.sleep(30)
-    await ctx.send('30 sec left to join')
-    await ctx.send(f'currently {len(game.active_players)} players have joined')
-    await asyncio.sleep(30)
+        # Check if there are enough players
+        if (
+            # len(game.active_players) < MIN_PLAYERS
+            len(game.active_players)
+            < 1
+        ):  # Replace with your desired minimum number of players
+            await ctx.send("Not enough players joined the game. Try again later.")
+            return
 
-    # Check if there are enough players
-    if len(current_game.active_players) < MIN_PLAYERS:  # replace with your desired minimum number of players
-        await ctx.send("Not enough players joined the game. Try again later.")
-        return
+        # Start the game
+        game.start_game()
+        await ctx.send(
+            f"Potato game has started with {len(game.active_players)} players!"
+        )
 
-    # Start the game
-    game.start_game()
-    await ctx.send(f"Potato game has started with {len(game.active_players)} players!")
+        # Wait for game to finish
+        game.game_thread.join()
+    finally:
+        # Once the game has finished or an exception has occurred, set bot's current_game to None
+        print("Ending game")
+        bot.current_game = None
 
 
 @bot.command(name="end")
@@ -174,5 +196,3 @@ bot.run()
 # }else{
 #     chatList[found] = newChatter
 # }
-
-
