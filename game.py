@@ -1,13 +1,16 @@
 from time import sleep
 from player import Player
-import threading
+
+# import threading
 import asyncio
 import random
+
+# import deque
 
 # Some dead kittens, I MEAN... globals...
 DEFAULT_MIN_PASSES = 2
 DEFAULT_TIME_TO_PASS = 30
-DEFAULT_GAME_TIME = 35  # for prod: set to 5 * 60
+DEFAULT_GAME_TIME = 60  # for prod: set to 5 * 60
 
 
 # need some default parameters for game:
@@ -25,8 +28,10 @@ class Game:
         self.active = False
         self.num_passes = 0
         self.current_player = None
-        # self.active_players = set()
-        self.active_players = []
+        self.active_players = set()
+        self.recent_potatoholders = [
+            None
+        ] * self.min_passes  # initializes the list with empty values
         self.game_timer = 0
         self.pass_timer = 0
         self.win = None
@@ -34,23 +39,14 @@ class Game:
     async def start_game(self, ctx):
         self.active = True
         if self.current_player is None:
-            random_player = self.active_players[
-                random.randint(0, len(self.active_players) - 1)
-            ]
-
-            self.current_player = random_player
+            self.current_player = random.choice(list(self.active_players))
             # self.current_player = self.active_players.pop()
             # self.active_players.add(self.current_player)
-
-        # Build list of players who can be passed to:
-        player_list_for_chat = []
-        for ap in self.active_players:
-            player_list_for_chat.append(ap.username)
 
         await ctx.send(
             f"@{self.current_player.username} you caught the Potato first! Pass it to any of these players:"
         )
-        await ctx.send("Players: " + ", ".join(player_list_for_chat))
+        await ctx.send("Players: " + ", ".join(p.username for p in self.active_players))
         self.loop_task = asyncio.create_task(self.game_loop(ctx))
 
     async def game_loop(self, ctx):
@@ -81,11 +77,20 @@ class Game:
         if new_player in self.active_players:
             await ctx.send(f"@{ctx.author.name}, you've already joined.")
         else:
-            # self.active_players.add(new_player)
-            self.active_players.append(new_player)
+            self.active_players.add(new_player)
+            # self.active_players.append(new_player)
             await ctx.send(f"Potatoed Up: @{new_player.username}")
 
     def _pass_potato(self, to_player, from_player_name):
+        # Validate  from player is actually playing:
+        from_player_is_active = False
+        for pl in self.active_players:
+            if from_player_name == pl.username:
+                from_player_is_active = True
+
+        if not from_player_is_active:
+            return
+
         # Make sure the from player actually has the potato:
         if from_player_name != self.current_player.username:
             raise Exception(f"@{from_player_name} you don't have the Potato right now.")
@@ -107,18 +112,56 @@ class Game:
                 f"@{to_player.username} already has the potato! Choose someone else..."
             )
 
-        # Check passes
-        # This is broken RN, probs cuz we messed with the numbers...
-        if self.num_passes - to_player.last_passed < self.min_passes:
+        # Check passes:
+        # if self.num_passes % self.min_passes == 0:
+        #     self.queue.pop()
+
+        # if to_player in self.queue:
+        #     raise Exception(
+        #         f"@{to_player.username} just had the Potato, their hands are too hot! Choose someone else..."
+        #     )
+
+        # during pass you want to check if to player is in recent potatoholders
+        if to_player in self.recent_potatoholders:
             raise Exception(
                 f"@{to_player.username} just had the Potato, their hands are too hot! Choose someone else..."
             )
 
-        # update game and player states, e.g. time received, last passed, num_passes, current player...
+        # if pass is succesfull before actually passing
+        self.recent_potatoholders.pop(0)  # removes the first element
+        self.recent_potatoholders.append(
+            self.current_player
+        )  # adds the last player to the end
+
+        # do the actual passing
         self.num_passes += 1
         self.pass_timer = 0
         to_player.receive_potato(self.num_passes)
         self.current_player = to_player
+
+        # list of active players who  are all valid passes unless they are in the queue
+        # queue keeps track of number of passes
+        # every 2  passes, someone leaves the queue and becomes  valid again
+        # players enter the queue when they receive the potato
+
+        # we could build a queu with length of min_passes to store the people you can't pass to in and just pop them off and add them in
+
+        # This is broken RN, probs cuz we messed with the numbers...
+        #    0                          0           <=  2
+        # if its the first potato pass
+        # if self.num_passes == 0:
+        #     self.num_passes += 1
+        #     self.pass_timer = 0
+        #     to_player.receive_potato(self.num_passes)
+        #     self.current_player = to_player
+        #     return
+
+        # if self.num_passes - to_player.last_passed <= self.min_passes:
+        #     raise Exception(
+        #         f"@{to_player.username} just had the Potato, their hands are too hot! Choose someone else..."
+        #     )
+
+        # update game and player states, e.g. time received, last passed, num_passes, current player...
 
     def check_for_win_state(self):
         if self.pass_timer > self.time_to_pass:

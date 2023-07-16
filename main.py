@@ -86,12 +86,12 @@ async def start(ctx):
         await ctx.send(
             "There's a piping Hot Potato dropping soon! Type '!join' to play!"
         )
-        await asyncio.sleep(10)  # 30
+        await asyncio.sleep(20)  # 30
         await ctx.send("30 seconds left to join!")
         await ctx.send(
             f"{len(game.active_players)} players have joined for Hot Potato!"
         )
-        await asyncio.sleep(10)  # 30/ 25
+        await asyncio.sleep(20)  # 30/ 25
         await ctx.send(
             f"Hot Potato starting in 5 seconds! If you're holding the potato, you have 30 seconds to pass it! Type '!pass @<player username>' to pass it to your teammates!"
         )
@@ -158,22 +158,23 @@ async def end(ctx):
 
 @bot.command(name="pass")
 async def pass_potato(ctx):
+    if bot.current_game is None:
+        await ctx.channel.send("Sorry, there is no potato to pass :(")
+        return
     if bot.lobby:
         return
 
-    # curr_player = bot.current_game.get_current_player()
-    # if ctx.author.name == curr_player.username:
-    #     await ctx.send(f"@{ctx.author.name}, you don't have the potato...?")
-    #     return
+    for player in bot.current_game.active_players:
+        if player.username == ctx.author.name:
+            break
+    else:  # activates only if no break occured so only if the author hasn't joined
+        return
+
     # flags to check here:
     # set a flag to handle failures in  main
     # "trying to send to self" flag
     #  and "trying to send to inactive player" flag to check
     # Need to check for chatters who did not join the game trying to play the game
-
-    if bot.current_game is None:
-        await ctx.channel.send("Sorry, there is no potato to pass :(")
-        return
 
     # Get the command content (everything after "!pass ")
     command_content = ctx.message.content.split(" ", 1)[-1].strip()
