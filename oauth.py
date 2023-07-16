@@ -7,8 +7,8 @@ import time
 def check_auth_status():
     if is_auth_expired():
         auth_response = get_new_auth_token()
-        print(f"auth response  = {auth_response.status_code}")
 
+        # Check status codes first:
         if auth_response.status_code == 400:
             if auth_response.text == "Invalid refresh token":
                 #
@@ -27,7 +27,6 @@ def check_auth_status():
         if auth_response.status_code == 200:
             # Turn response object into JSON object:
             auth_resp_json = auth_response.json()
-            print(f"auth resp json = {auth_resp_json}")
 
             update_auth_json(auth_resp_json)
 
@@ -59,21 +58,14 @@ def get_new_auth_token():
         headers=HEADERS,
     )
 
-    # # Make sure we actually succeeded at refreshing the token:
-    # response_json = response.json()
-
-    # if response_json["message"] == "Invalid refresh token":
-    #     new_r_token = get_new_refresh_token()
-    #     return False
-
     return response
 
 
 def is_auth_expired():
     #
-    # We will check how long it's been since
-    # last refresh to determine if we should
-    # pre-emptively ask Twitch for a new one:
+    # ... We will check how long it's been since
+    # ... last refresh to determine if we should
+    # ... pre-emptively ask Twitch for a new one:
     #
     CHECK_WINDOW = 5 * 60  # set to 5 minutes
     current_time = int(time.time())  # should be in seconds
@@ -131,6 +123,3 @@ def update_auth_json(rj):
     # }
 
     return
-
-
-check_auth_status()

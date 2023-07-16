@@ -4,10 +4,28 @@ import json
 import asyncio
 
 # Local modules:
+from oauth import check_auth_status
 from player import *
 from game import *
 from chat import chatter_has_authority
 
+# ....... AUTH THINGS:
+# Make sure Auth token is valid before starting process:
+check_auth_status()
+
+
+# ... See the event loop to check the auth status q hour
+# ... at bottom of this file
+async def check_auth_wrappper():
+    AUTH_CHECK_INTERVAL = 5  # 60 * 60  # Check auth status every hour
+    while True:
+        check_auth_status()
+        await asyncio.sleep(AUTH_CHECK_INTERVAL)
+
+
+# ....... END AUTH THINGS
+
+# ....... MAIN BOT CODE:
 # Load api/ oauth data from data/api.json:
 with open("data/api.json") as f:
     api = json.load(f)
@@ -198,5 +216,18 @@ async def event_message(ctx):
         return
 
 
-# Connect and run bot, it's listening to chat, this method is 'stopping':
-bot.run()
+# ....... AUTH EVENT LOOP:
+try:
+    loop = asyncio.get_event_loop()
+    check_auth_task = loop.create_task(check_auth_wrappper())
+
+    # ... We're using asyncio to 'gather' both 'bot.run()' and our
+    # ... asyncio task so they can be run concurrently
+    # ... which is necessary bc 'bot.run()' is blocking
+    loop.run_until_complete(asyncio.gather(bot.run(), check_auth_task))
+except KeyboardInterrupt:
+    pass
+finally:
+    loop.close()
+
+# ....... END BOT CODE

@@ -1,21 +1,24 @@
-{"OA_TOKEN":"",
-"CLIENT_ID":"",
-"CLIENT_SECRET":"",
-"REDIRECT_URI":"http://localhost:3000",
-"CODE_FROM_LAST_REQUEST":"",
-    "OA_EXPIRE": 0,
-    "LAST_REFRESH":0,
-    "Bot": {
-      "PREFIX": "!",
-      "CHANNEL": "trshpuppy",
-      "STREAMER_NICK": "",
-      "BOT_USERNAME": "trsh_bot",
-      "KEYWORD_PLURAL": "keywords",
-      "KEYWORD_SINGULAR": "keyword",
-      "MODLIST": [
-        "trshpuppy",
-        "turing_moon_yatch",
-        "rulerlefi"
-      ]
-    }
+{
+  "OA_TOKEN": "oa_token",
+  "CLIENT_ID": "client_id",
+  "CLIENT_SECRET": "client_secret",
+  "REDIRECT_URI": "http://localhost:3000",
+  "CODE_FROM_LAST_REQUEST": "code",
+  "SCOPE": "chat%3Aread+chat%3Aedit+channel%3Amoderate",
+  "REFRESH_TOKEN": "refresh_token",
+  "OA_EXPIRE": 13203,
+  "LAST_REFRESH": 1689523922,
+  "Bot": {
+    "PREFIX": "!",
+    "CHANNEL": "trshpuppy",
+    "STREAMER_NICK": "",
+    "BOT_USERNAME": "trsh_bot",
+    "KEYWORD_PLURAL": "keywords",
+    "KEYWORD_SINGULAR": "keyword",
+    "MODLIST": [
+      "trshpuppy",
+      "turing_moon_yatch",
+      "rulerlefi"
+    ]
   }
+}

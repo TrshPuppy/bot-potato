@@ -7,7 +7,7 @@ import random
 # Some dead kittens, I MEAN... globals...
 DEFAULT_MIN_PASSES = 2
 DEFAULT_TIME_TO_PASS = 30
-DEFAULT_GAME_TIME = 35
+DEFAULT_GAME_TIME = 35  # for prod: set to 5 * 60
 
 
 # need some default parameters for game:
@@ -134,7 +134,6 @@ class Game:
     def end_game(self):
         self.active = False
 
-    #
     # def resolve_game(self):
     #     # might need to pass twitchio ctx when creating game so that we can write to chat here
     #     self.active = False
