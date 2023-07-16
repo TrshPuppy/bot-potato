@@ -1,30 +1,35 @@
 # This module will handle updating the oauth keys/tokens which need to be refreshed every 4-5 hours
 import json
 import requests
+import time
 
 
 def check_auth_status():
     if is_auth_expired():
         auth_response = get_new_auth_token()
-        # Turn response object into JSON object:
-        auth_resp_json = auth_response.json()
+        print(f"auth response  = {auth_response.status_code}")
 
-        if auth_resp_json.message == "Invalid refresh token":
-            get_new_refresh_token()
-            #
-            # We'll have to handle this case better.
-            # ... The Twitch refresh token does eventually expire
-            # ... According to the documentation anyway...
-            #
-        if auth_resp_json.status == 400:
-            # We may get a 400 response for other unhandled reasons:
-            print(f"Status code 400 from Twitch for oauth refresh. Unhandled Error.")
-            print(f"Twitch Response Message: {auth_resp_json.message}")
+        if auth_response.status_code == 400:
+            if auth_response.text == "Invalid refresh token":
+                #
+                # We'll have to handle this case better.
+                # ... The Twitch refresh token does eventually expire
+                # ... According to the documentation anyway...
+                #
+                get_new_refresh_token()
+            else:
+                # We may get a 400 response for other unhandled reasons:
+                print(
+                    f"Status code 400 from Twitch for oauth refresh. Unhandled Error."
+                )
+                print(f"Twitch Response Message: {auth_response.text}")
 
-        if auth_resp_json.status == 200:
+        if auth_response.status_code == 200:
+            # Turn response object into JSON object:
+            auth_resp_json = auth_response.json()
+            print(f"auth resp json = {auth_resp_json}")
+
             update_auth_json(auth_resp_json)
-
-        print(f"response = {auth_resp_json.text}")
 
     return
 
@@ -77,8 +82,34 @@ def get_new_refresh_token():
     return "this is a fake refresh token"
 
 
-async def update_auth_json(resp):
+def update_auth_json(rj):
     # Build properties from response to update json:
+    OA_TOKEN = rj["access_token"]
+    REFRESH_TOKEN = rj["refresh_token"]
+    OA_EXPIRE = rj["expires_in"]
+    LAST_REFRESH = int(time.time())
+
+    # Load JSON file for reading:
+    with open("data/api.json", "r") as f:
+        oauth_data = json.load(f)
+
+    oauth_data["OA_TOKEN"] = OA_TOKEN
+    oauth_data["REFRESH_TOKEN"] = REFRESH_TOKEN
+    oauth_data["OA_EXPIRE"] = OA_EXPIRE
+    oauth_data["LAST_REFRESH"] = LAST_REFRESH
+
+    # Load JSON file  for writing:
+    with open("data/api.json", "w") as wf:
+        json.dump(oauth_data, wf)
+
+    # Example response:
+    # response = {
+    #     "access_token": "",
+    #     "expires_in": <int>,
+    #     "refresh_token": "",
+    #     "scope": ["string"],
+    #     "token_type": "bearer",
+    # }
 
     return
 
