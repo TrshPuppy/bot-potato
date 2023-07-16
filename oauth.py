@@ -31,8 +31,6 @@ def check_auth_status():
 
             update_auth_json(auth_resp_json)
 
-    return
-
 
 def get_new_auth_token():
     # Build the request URL:
@@ -72,7 +70,28 @@ def get_new_auth_token():
 
 
 def is_auth_expired():
-    return True
+    #
+    # We will check how long it's been since
+    # last refresh to determine if we should
+    # pre-emptively ask Twitch for a new one:
+    #
+    CHECK_WINDOW = 5 * 60  # set to 5 minutes
+    current_time = int(time.time())  # should be in seconds
+
+    # Load details from data/api.json:
+    with open("data/api.json", "r") as f:
+        auth_data = json.load(f)
+
+    last_refresh_time = auth_data["LAST_REFRESH"]  # should also be in seconds
+    auth_expiration = auth_data["OA_EXPIRE"]
+
+    # Check to see if we are w/i 5 mins of the expiration or over:
+    if current_time - last_refresh_time >= auth_expiration - CHECK_WINDOW:
+        print("OAUTH TOKEN EXPIRED")
+        return True
+
+    print("OAUTH NOT EXPIRED")
+    return False
 
 
 def get_new_refresh_token():
