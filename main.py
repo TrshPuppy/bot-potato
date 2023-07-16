@@ -86,12 +86,12 @@ async def start(ctx):
         await ctx.send(
             "There's a piping Hot Potato dropping soon! Type '!join' to play!"
         )
-        await asyncio.sleep(20)  # 30
+        await asyncio.sleep(30)  # 30
         await ctx.send("30 seconds left to join!")
         await ctx.send(
             f"{len(game.active_players)} players have joined for Hot Potato!"
         )
-        await asyncio.sleep(20)  # 30/ 25
+        await asyncio.sleep(30)  # 30/ 25
         await ctx.send(
             f"Hot Potato starting in 5 seconds! If you're holding the potato, you have 30 seconds to pass it! Type '!pass @<player username>' to pass it to your teammates!"
         )
@@ -127,7 +127,9 @@ async def start(ctx):
         if game.win:
             await ctx.send(f"Congrats! Chat won hot potato!")
         else:
-            await ctx.send(f"@<replace me> didn't pass the potato in time :(")
+            await ctx.send(
+                f"@{bot.current_game.current_player.username} didn't pass the potato in time :("
+            )
         bot.current_game = None
         bot.lobby = None
 
