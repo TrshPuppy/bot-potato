@@ -35,6 +35,7 @@ class Game:
         self.game_timer = 0
         self.pass_timer = 0
         self.win = None
+        self.not_potato = "pupppy"
 
     async def start_game(self, ctx):
         self.active = True
@@ -118,9 +119,10 @@ class Game:
                 f"@{to_player.username} just had the Potato, their hands are too hot! Choose someone else..."
             )
 
+        # Randomly passes something other than a potato:
         if self.is_it_not_a_potato():
             raise Exception(
-                f"Oh no! @{from_player_name} meant to pass the potato, but instead you passed a puppy! Try again!"
+                f"Oh no! @{from_player_name} meant to pass the potato, but instead you passed a {self.not_potato}! Try again!"
             )
 
         # if pass is succesfull before actually passing:

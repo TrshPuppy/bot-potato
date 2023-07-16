@@ -33,6 +33,7 @@ with open("data/api.json") as f:
 bot_username = api["Bot"]["BOT_USERNAME"]
 prefix = api["Bot"]["PREFIX"]
 channel_mods = api["Bot"]["MODLIST"]
+target_twitch_channel = api["Bot"]["CHANNEL"]
 MIN_PLAYERS = 2
 
 # Load game stats from data/stats.json:
@@ -45,7 +46,7 @@ bot = commands.Bot(
     client_id=api["CLIENT_ID"],
     nick=bot_username,
     prefix=prefix,
-    initial_channels=["trshpuppy"],
+    initial_channels=[target_twitch_channel],
 )
 bot.current_game = None
 bot.lobby = None
