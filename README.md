@@ -1,7 +1,7 @@
 # Bot Potato!
 This is a team project submitted for the [Time Enjoyed Code Jam '23](https://codejam.timeenjoyed.dev)!
 
-## Team Mates:
+## Trash Team:
 - TrshPuppy
 - Rulerlefi
 - Turing_Moon_Yatch
