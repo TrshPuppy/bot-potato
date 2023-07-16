@@ -3,11 +3,31 @@ import json
 import requests
 
 
-async def check_auth_status():
+def check_auth_status():
+    if is_auth_expired():
+        auth_response = get_new_auth_token()
+
+        if auth_response.message == "Invalid refresh token":
+            get_new_refresh_token()
+            #
+            # We'll have to handle this case better.
+            # ... The Twitch refresh token does eventually expire
+            # ... According to the documentation anyway...
+            #
+        if auth_response.status == 400:
+            # We may get a 400 response for other unhandled reasons:
+            print(f"Status code 400 from Twitch for oauth refresh. Unhandled Error.")
+            print(f"Twitch Response Message: {auth_response.message}")
+
+        if auth_response.status == 200:
+            update_auth_json(auth_response)
+
+        print(f"response = {auth_response.text}")
+
     return
 
 
-async def refresh_token():
+def get_new_auth_token():
     # Build the request URL:
     TWITCH_REFRESH_URL = "https://id.twitch.tv/oauth2/token"
 
@@ -34,13 +54,25 @@ async def refresh_token():
         headers=HEADERS,
     )
 
-    # Make sure we actually succeeded at refreshing the token:
-    response_json = response.json()
+    # # Make sure we actually succeeded at refreshing the token:
+    # response_json = response.json()
 
-    if response_json["message"] == "Invalid refresh token":
-        new_r_token = get_new_refresh_token()
-        return False
+    # if response_json["message"] == "Invalid refresh token":
+    #     new_r_token = get_new_refresh_token()
+    #     return False
 
+    # response = {
+    #     "access_token": "qo7ju8mvsyex9gw39cpg3vmrmsa63x",
+    #     "expires_in": 13022,
+    #     "refresh_token": "ycp6k35tn80exju6rjnrxldus9x0ko81bg43qq0j6g0igh0n84",
+    #     "scope": ["channel:moderate", "chat:edit", "chat:read"],
+    #     "token_type": "bearer",
+    # }
+
+    return response
+
+
+def is_auth_expired():
     return True
 
 
@@ -53,3 +85,6 @@ def get_new_refresh_token():
 
 async def update_auth_json():
     return
+
+
+check_auth_status()
