@@ -17,7 +17,7 @@ check_auth_status()
 # ... See the event loop to check the auth status q hour
 # ... at bottom of this file
 async def check_auth_wrappper():
-    AUTH_CHECK_INTERVAL = 5  # 60 * 60  # Check auth status every hour
+    AUTH_CHECK_INTERVAL = 60 * 60  # Check auth status every hour
     while True:
         check_auth_status()
         await asyncio.sleep(AUTH_CHECK_INTERVAL)
@@ -182,7 +182,6 @@ async def pass_potato(ctx):
     if command_content.startswith("@"):
         # Remove the "@" from the beginning
         username = command_content[1:].lower()
-        print(f"username is {username}")
 
         # Search for the player with this username in the active players of the game
         for player in bot.current_game.active_players:

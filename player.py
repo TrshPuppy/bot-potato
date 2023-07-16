@@ -14,7 +14,7 @@ class Player:
     def __hash__(self):
         return hash(self.id)
 
-    def __eq__(self, other):  # So python can make sure  two players aren't the same
+    def __eq__(self, other):  # So python can make sure two players aren't the same
         if isinstance(other, Player):
             return self.id == other.id
         return False

@@ -67,9 +67,7 @@ class Game:
 
             await asyncio.sleep(1)  # non-blocking sleep
             self.game_timer += 1
-            print(f"game_timer: {self.game_timer} game_time: {self.game_time}")
             self.pass_timer += 1
-            print(f"pass_timer: {self.pass_timer} time_to_pass: {self.time_to_pass}")
 
     async def add_player(self, ctx):
         if self.active:
