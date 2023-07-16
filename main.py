@@ -33,7 +33,7 @@ with open("data/api.json") as f:
 bot_username = api["Bot"]["BOT_USERNAME"]
 prefix = api["Bot"]["PREFIX"]
 channel_mods = api["Bot"]["MODLIST"]
-MIN_PLAYERS = 1
+MIN_PLAYERS = 2
 
 # Load game stats from data/stats.json:
 with open("data/stats.json") as g:
