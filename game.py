@@ -41,8 +41,6 @@ class Game:
         self.active = True
         if self.current_player is None:
             self.current_player = random.choice(list(self.active_players))
-            # self.current_player = self.active_players.pop()
-            # self.active_players.add(self.current_player)
 
         await ctx.send(
             f"@{self.current_player.username} you caught the Potato first! Pass it to any of these players:"
@@ -110,7 +108,7 @@ class Game:
         # Make sure a player is not passing to themselves:
         if to_player.username == self.current_player.username:
             raise Exception(
-                f"@{to_player.username} already has the potato! Choose someone else..."
+                f"@{self.current_player.username} that player already has the potato! Choose someone else..."
             )
 
         # during pass you want to check if to player is in recent potatoholders
@@ -120,9 +118,9 @@ class Game:
             )
 
         # Randomly passes something other than a potato:
-        if self.is_it_not_a_potato():
+        if self.is_it_not_a_potato(to_player):
             raise Exception(
-                f"Oh no! @{from_player_name} meant to pass the potato, but instead you passed a {self.not_potato}! Try again!"
+                f"Oh no! @{from_player_name} meant to pass the potato, but instead passed a {self.not_potato}! Try again!"
             )
 
         # if pass is succesfull before actually passing:
@@ -137,9 +135,37 @@ class Game:
         to_player.receive_potato(self.num_passes)
         self.current_player = to_player
 
-    def is_it_not_a_potato(self):
-        random_num = random.randint(0, len(self.active_players) - 1)
-        if random_num % 3 == 0:
+    def is_it_not_a_potato(self, to_player):
+        possible_items = [
+            {
+                "item": "puppy",
+                "command": "!pat",
+                "message": "You received a puppy! Give her a pat to free up your hands: !pat",
+            },
+            {
+                "item": "old watch",
+                "command": "!pawn",
+                "message": "You received an old watch! Pawn it to free up your hands: !pawn",
+            },
+            {
+                "item": "banana",
+                "command": "!peel",
+                "message": "You received a banana! Peel it to free up your hands: !peel",
+            },
+            {
+                "item":"kitten", 
+                "command":"!play"
+            }
+        ]
+
+        num_players = len(self.active_players)
+        # random_num = random.randint(0, len(self.active_players) - 1)
+        if random.choices((True, False), weights=(1,3)):
+        # random_num = random.randint(0, num_players)
+        # if not random_num & 3:
+            random_item = possible_items[random.randint(0, len(possible_items) - 1)]
+            to_player.receive_random_item(random_item)
+            self.not_potato = random_item.item
             return True
         return False
 

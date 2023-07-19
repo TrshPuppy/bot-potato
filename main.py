@@ -186,22 +186,26 @@ async def pass_potato(ctx):
     if command_content.startswith("@"):
         # Remove the "@" from the beginning
         username = command_content[1:].lower()
+    else:
+        username = command_content[0:].lower()
 
-        # Search for the player with this username in the active players of the game
-        for player in bot.current_game.active_players:
-            if player.username == username:
-                print(f"player.username = {player.username}")
-                # Found the player, pass the potato to them
-                try:
-                    bot.current_game._pass_potato(player, ctx.author.name)
-                    await ctx.send(
-                        f"{ctx.author.name} passed the potato to @{player.username}!"
-                    )
-                except Exception as e:
-                    # Send the errors greated in game._pass_potato to the chat:
-                    await ctx.send(f"{e}")
-                finally:
-                    return
+    # Search for the player with this username in the active players of the game
+    for player in bot.current_game.active_players:
+        if player.username == username:
+            print(f"player.username = {player.username}")
+            # Found the player, pass the potato to them
+            try:
+                bot.current_game._pass_potato(player, ctx.author.name)
+                await ctx.send(
+                    f"{ctx.author.name} passed the potato to @{player.username}!"
+                )
+            except Exception as e:
+                # Send the errors greated in game._pass_potato to the chat:
+                await ctx.send(f"{e}")
+                if player.random_item != None:
+                    ctx.send(f"{player.random_item.message}")
+            finally:
+                return
 
     # If we didn't find the player or the command was not properly formatted, send an error message
     await ctx.send(f"That player isn't playing! Use '!pass @<username>'")
@@ -215,6 +219,7 @@ async def event_ready():
 
 @bot.event()
 async def event_message(ctx):
+    # if message
     if ctx.echo:
         return
 
