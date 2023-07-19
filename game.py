@@ -160,12 +160,12 @@ class Game:
 
         num_players = len(self.active_players)
         # random_num = random.randint(0, len(self.active_players) - 1)
-        if random.choices((True, False), weights=(1,3)):
+        if random.choices((True, False), weights=(1,3))[0]:
         # random_num = random.randint(0, num_players)
         # if not random_num & 3:
             random_item = possible_items[random.randint(0, len(possible_items) - 1)]
             to_player.receive_random_item(random_item)
-            self.not_potato = random_item.item
+            self.not_potato = random_item['item']
             return True
         return False
 
