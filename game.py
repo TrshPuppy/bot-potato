@@ -24,9 +24,7 @@ class Game:
     ):
         self.min_passes = min_passes
         self.time_to_pass = time_to_pass
-        self.game_time = game_time
         self.active = False
-        self.num_passes = 0
         self.current_player = None
         self.active_players = set()
         self.recent_potatoholders = [
