@@ -128,7 +128,7 @@ class Game:
             )
 
         # Randomly passes something other than a potato:
-        if random.choices((True, False), weights=(1,3))[0]:
+        if random.random() < 0.25:
             self.not_potato = random.choice(self.non_potatos)
             raise Exception(
                 f"Oh no! @{from_player} meant to pass the potato, but instead passed a {self.not_potato['item']}! Try again!"
