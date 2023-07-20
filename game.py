@@ -1,5 +1,4 @@
 from time import sleep
-from player import Player
 
 # import threading
 import asyncio
@@ -33,7 +32,29 @@ class Game:
         self.game_timer = 0
         self.pass_timer = 0
         self.win = None
-        self.not_potato = "pupppy"
+        self.not_potato = False
+        self.non_potatos = [
+            {
+                "item"    : "puppy",
+                "command" : "!pat",
+                "message" : "You received a puppy! Give her a pat to free up your hands: !pat",
+            },
+            {
+                "item"    : "old watch",
+                "command" : "!pawn",
+                "message" : "You received an old watch! Pawn it to free up your hands: !pawn",
+            },
+            {
+                "item"    : "banana",
+                "command" : "!peel",
+                "message" : "You received a banana! Peel it to free up your hands: !peel",
+            },
+            {
+                "item"    : "kitten", 
+                "command" :"!play",
+                "message" : "You have received a kitten! You must play with it until it is tired: !play"
+            }
+        ]
 
     async def start_game(self, ctx):
         self.active = True
@@ -69,56 +90,48 @@ class Game:
             )
             return
 
-        new_player = Player(ctx.author.name, ctx.author.id)
-
+        new_player = ctx.author.name
+        
         if new_player in self.active_players:
-            await ctx.send(f"@{ctx.author.name}, you've already joined.")
+            await ctx.send(f"@{new_player}, you've already joined.")
         else:
             self.active_players.add(new_player)
             # self.active_players.append(new_player)
-            await ctx.send(f"Potatoed Up: @{new_player.username}")
+            await ctx.send(f"Potatoed Up: @{new_player}")
 
-    def _pass_potato(self, to_player, from_player_name):
+    def _pass_potato(self, to_player, from_player):
         # Validate  from player is actually playing:
-        from_player_is_active = False
-        for pl in self.active_players:
-            if from_player_name == pl.username:
-                from_player_is_active = True
-
-        if not from_player_is_active:
+        if from_player not in self.active_players:
             return
 
         # Make sure the from player actually has the potato:
-        if from_player_name != self.current_player.username:
-            raise Exception(f"@{from_player_name} you don't have the Potato right now.")
+        if from_player != self.current_player:
+            raise Exception(f"@{from_player} you don't have the Potato right now.")
 
         # Validate to_player: exists in game, etc.
-        player_is_active = False
-        for ap in self.active_players:
-            if to_player.username == ap.username:
-                player_is_active = True
 
-        if not player_is_active:
+        if to_player not in self.active_players:
             raise Exception(
-                f"@{to_player.username} is not playing! Choose someone else..."
+                f"@{to_player} is not playing! Choose someone else..."
             )
 
         # Make sure a player is not passing to themselves:
-        if to_player.username == self.current_player.username:
+        if to_player == self.current_player:
             raise Exception(
-                f"@{self.current_player.username} that player already has the potato! Choose someone else..."
+                f"@{self.current_player} that player already has the potato! Choose someone else..."
             )
 
         # during pass you want to check if to player is in recent potatoholders
         if to_player in self.recent_potatoholders:
             raise Exception(
-                f"@{to_player.username} just had the Potato, their hands are too hot! Choose someone else..."
+                f"@{to_player} just had the Potato, their hands are too hot! Choose someone else..."
             )
 
         # Randomly passes something other than a potato:
-        if self.is_it_not_a_potato(to_player):
+        if random.choices((True, False), weights=(1,3))[0]:
+            self.not_potato = random.choice(self.non_potatos)
             raise Exception(
-                f"Oh no! @{from_player_name} meant to pass the potato, but instead passed a {self.not_potato}! Try again!"
+                f"Oh no! @{from_player} meant to pass the potato, but instead passed a {self.not_potato['item']}! Try again!"
             )
 
         # if pass is succesfull before actually passing:
@@ -129,43 +142,8 @@ class Game:
 
         # do the actual passing:
         self.num_passes += 1
-        self.pass_timer = 0
-        to_player.receive_potato(self.num_passes)
         self.current_player = to_player
 
-    def is_it_not_a_potato(self, to_player):
-        possible_items = [
-            {
-                "item": "puppy",
-                "command": "!pat",
-                "message": "You received a puppy! Give her a pat to free up your hands: !pat",
-            },
-            {
-                "item": "old watch",
-                "command": "!pawn",
-                "message": "You received an old watch! Pawn it to free up your hands: !pawn",
-            },
-            {
-                "item": "banana",
-                "command": "!peel",
-                "message": "You received a banana! Peel it to free up your hands: !peel",
-            },
-            {
-                "item":"kitten", 
-                "command":"!play"
-            }
-        ]
-
-        num_players = len(self.active_players)
-        # random_num = random.randint(0, len(self.active_players) - 1)
-        if random.choices((True, False), weights=(1,3))[0]:
-        # random_num = random.randint(0, num_players)
-        # if not random_num & 3:
-            random_item = possible_items[random.randint(0, len(possible_items) - 1)]
-            to_player.receive_random_item(random_item)
-            self.not_potato = random_item['item']
-            return True
-        return False
 
     def check_for_win_state(self):
         if self.pass_timer > self.time_to_pass:
